@@ -79,6 +79,12 @@ func (s *Service) ToDomainSet(node startgg.Node) domain.Set {
 		entrants = append(entrants, toDomainEntrant(slot.Entrant))
 	}
 	var games []domain.Game
+	lPlacement := 0
+	for _, entrant := range entrants {
+		if entrant.Id != node.WinnerId {
+			lPlacement = entrant.Placement
+		}
+	}
 	if node.Games != nil {
 		for _, game := range node.Games {
 			games = append(games, s.toDomainGame(game))
@@ -90,7 +96,7 @@ func (s *Service) ToDomainSet(node startgg.Node) domain.Set {
 		&node.FullRoundText,
 		node.TotalGames,
 		node.Round,
-		node.LPlacement,
+		lPlacement,
 		node.WinnerId,
 		entrants,
 		&games,
