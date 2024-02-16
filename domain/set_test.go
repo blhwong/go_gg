@@ -7,8 +7,8 @@ import (
 
 var e1 Entrant = Entrant{12394650, "LG | Tweek", 3, 9, true}
 var e2 Entrant = Entrant{12687800, "Zomba", 20, 8, false}
-var s1 []Selection = []Selection{Selection{e1, Character{1279, "Diddy Kong"}}, Selection{e2, Character{1323, "R.O.B."}}}
-var s2 []Selection = []Selection{Selection{e1, Character{1777, "Sephiroth"}}, Selection{e2, Character{1323, "R.O.B."}}}
+var s1 []Selection = []Selection{Selection{e1, &Character{1279, "Diddy Kong"}}, Selection{e2, &Character{1323, "R.O.B."}}}
+var s2 []Selection = []Selection{Selection{e1, &Character{1777, "Sephiroth"}}, Selection{e2, &Character{1323, "R.O.B."}}}
 
 type setTestCase struct {
 	set                                                         *Set
