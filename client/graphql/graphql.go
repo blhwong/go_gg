@@ -22,7 +22,7 @@ type Payload struct {
 	Variables interface{} `json:"variables"`
 }
 
-func (client Client) Query(query string, variables interface{}) []byte {
+func (client *Client) Query(query string, variables interface{}) []byte {
 	payload := Payload{query, variables}
 	body, err := json.Marshal(payload)
 	if err != nil {

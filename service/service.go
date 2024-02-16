@@ -73,7 +73,7 @@ func (s *Service) toDomainGame(game startgg.Game) domain.Game {
 	}
 }
 
-func (s Service) ToDomainSet(node startgg.Node) domain.Set {
+func (s *Service) ToDomainSet(node startgg.Node) domain.Set {
 	entrants := make([]domain.Entrant, 0)
 	for _, slot := range node.Slots {
 		entrants = append(entrants, toDomainEntrant(slot.Entrant))
@@ -98,7 +98,7 @@ func (s Service) ToDomainSet(node startgg.Node) domain.Set {
 	)
 }
 
-func (s Service) GetEvent() {
+func (s *Service) GetEvent() {
 
 }
 
@@ -109,7 +109,7 @@ func applyFilter(upsetFactor, winnerInitialSeed, loserInitialSeed int, isDQ bool
 	return fulfillsMinUpsetFactor && fulfillsNotDQ && fulfillsMaxSeed && score != nil
 }
 
-func (s Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
+func (s *Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	var winners, losers, notables, dqs, other []domain.Set
 	for _, set := range sets {
 		if set.IsWinnersBracket() && applyFilter(
@@ -188,9 +188,9 @@ func (s Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	}
 }
 
-func (s Service) GetUpsetThreadDB() {
+func (s *Service) GetUpsetThreadDB() {
 
 }
-func (s Service) SubmitToSubreddit() {
+func (s *Service) SubmitToSubreddit() {
 
 }

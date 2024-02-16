@@ -82,7 +82,7 @@ type EventResponse struct {
 	} `json:"data"`
 }
 
-func (client Client) GetEvent(slug string, page int) EventResponse {
+func (client *Client) GetEvent(slug string, page int) EventResponse {
 	fmt.Printf("Getting event. slug: %s, page: %v\n", slug, page)
 	type filters struct {
 		State int `json:"state"`
@@ -116,7 +116,7 @@ type CharactersResponse struct {
 	} `json:"data"`
 }
 
-func (client Client) GetCharacters() CharactersResponse {
+func (client *Client) GetCharacters() CharactersResponse {
 	fmt.Println("Getting characters")
 	type variables struct {
 		Slug string `json:"slug"`

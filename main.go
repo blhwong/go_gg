@@ -23,11 +23,10 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
-
-	var service service.ServiceInterface = service.Service{
+	var service service.ServiceInterface = &service.Service{
 		DBService: data.NewInMemoryDBService(),
-		StartGGClient: startgg.Client{
-			GraphQLClient: graphql.Client{
+		StartGGClient: &startgg.Client{
+			GraphQLClient: &graphql.Client{
 				Url:      os.Getenv("START_GG_API_URL"),
 				ApiToken: os.Getenv("START_GG_API_KEY"),
 			},

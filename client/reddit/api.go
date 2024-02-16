@@ -10,14 +10,14 @@ type RedditClientInterface interface {
 
 type RedditClient struct{}
 
-func (redditClient RedditClient) Submission(submissionId string) {
+func (redditClient *RedditClient) Submission(submissionId string) {
 	fmt.Printf("Submission. submissionId: %s\n", submissionId)
 }
 
-func (redditClient RedditClient) Subreddit(subreddit string) {
+func (redditClient *RedditClient) Subreddit(subreddit string) {
 	fmt.Printf("Subreddit. subreddit: %s\n", subreddit)
 }
 
-func (redditClient RedditClient) Submit(title string, text string) {
+func (redditClient *RedditClient) Submit(title string, text string) {
 	fmt.Printf("Submit. title: %s, text: %s\n", title, text)
 }
