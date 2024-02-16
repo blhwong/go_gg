@@ -178,7 +178,7 @@ func (s *Set) IsDQ() bool {
 }
 
 func (s *Set) IsDQAndOut() bool {
-	return s.IsWinnersBracket() && s.IsDQ()
+	return !s.IsWinnersBracket() && s.IsDQ()
 }
 
 func (s *Set) IsNotable() bool {
