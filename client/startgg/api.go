@@ -7,8 +7,8 @@ import (
 )
 
 type ClientInterface interface {
-	GetEvent(slug string, page int)
-	GetCharacters()
+	GetEvent(slug string, page int) EventResponse
+	GetCharacters() CharactersResponse
 }
 
 type Client struct {
@@ -82,7 +82,7 @@ type EventResponse struct {
 	} `json:"data"`
 }
 
-func (client Client) GetEvent(slug string, page int) {
+func (client Client) GetEvent(slug string, page int) EventResponse {
 	fmt.Printf("Getting event. slug: %s, page: %v\n", slug, page)
 	type filters struct {
 		State int `json:"state"`
@@ -94,30 +94,30 @@ func (client Client) GetEvent(slug string, page int) {
 		SortType string  `json:"sortType"`
 	}
 	resp := client.GraphQLClient.Query(EventsQuery, variables{slug, page, filters{3}, "RECENT"})
-	fmt.Println(string(resp))
 	var eventResponse EventResponse
 	if err := json.Unmarshal(resp, &eventResponse); err != nil {
 		panic(err)
 	}
-	fmt.Println(eventResponse)
+	return eventResponse
+}
+
+type Character struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type CharactersResponse struct {
 	Data struct {
 		VideoGame struct {
-			Id         int    `json:"id"`
-			Slug       string `json:"slug"`
-			Characters []struct {
-				Id   int    `json:"id"`
-				Name string `json:"name"`
-			} `json:"characters"`
+			Id         int         `json:"id"`
+			Slug       string      `json:"slug"`
+			Characters []Character `json:"characters"`
 		} `json:"videogame"`
 	} `json:"data"`
 }
 
-func (client Client) GetCharacters() {
+func (client Client) GetCharacters() CharactersResponse {
 	fmt.Println("Getting characters")
-
 	type variables struct {
 		Slug string `json:"slug"`
 	}
@@ -127,5 +127,5 @@ func (client Client) GetCharacters() {
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
 		panic(err)
 	}
-	fmt.Println(charactersResponse)
+	return charactersResponse
 }

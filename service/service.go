@@ -2,6 +2,7 @@ package service
 
 import (
 	"gg/client/startgg"
+	"gg/data"
 	"gg/domain"
 	"gg/mapper"
 	"math"
@@ -17,7 +18,10 @@ type ServiceInterface interface {
 	SubmitToSubreddit()
 }
 
-type Service struct{}
+type Service struct {
+	DBService     data.DBServiceInterface
+	StartGGClient startgg.ClientInterface
+}
 
 func toDomainEntrant(entrant startgg.Entrant) domain.Entrant {
 	return domain.Entrant{
@@ -29,15 +33,37 @@ func toDomainEntrant(entrant startgg.Entrant) domain.Entrant {
 	}
 }
 
-func toDomainSelection(selection startgg.Selection) domain.Selection {
-	return domain.Selection{}
+func (s *Service) getCharacterName(key int) string {
+	if !s.DBService.IsCharactersLoaded() {
+		res := s.StartGGClient.GetCharacters()
+		s.DBService.AddCharacters(res.Data.VideoGame.Characters)
+		s.DBService.SetIsCharactersLoaded()
+	}
+	return s.DBService.GetCharacterName(key)
 }
 
-func toDomainGame(game startgg.Game) domain.Game {
+func (s *Service) toDomainCharacter(selectionType string, value int) *domain.Character {
+	if selectionType != "CHARACTER" {
+		return nil
+	}
+	return &domain.Character{
+		Value: value,
+		Name:  s.getCharacterName(value),
+	}
+}
+
+func (s *Service) toDomainSelection(selection startgg.Selection) domain.Selection {
+	return domain.Selection{
+		Entrant:   toDomainEntrant(selection.Entrant),
+		Character: s.toDomainCharacter(selection.SelectionType, selection.SelectionValue),
+	}
+}
+
+func (s *Service) toDomainGame(game startgg.Game) domain.Game {
 	var selections []domain.Selection
 	if game.Selections != nil {
 		for _, selection := range game.Selections {
-			selections = append(selections, toDomainSelection(selection))
+			selections = append(selections, s.toDomainSelection(selection))
 		}
 	}
 	return domain.Game{
@@ -55,7 +81,7 @@ func (s Service) ToDomainSet(node startgg.Node) domain.Set {
 	var games []domain.Game
 	if node.Games != nil {
 		for _, game := range node.Games {
-			games = append(games, toDomainGame(game))
+			games = append(games, s.toDomainGame(game))
 		}
 	}
 	return *domain.NewSet(

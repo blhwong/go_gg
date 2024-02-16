@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"gg/client/graphql"
 	"gg/client/startgg"
+	"gg/data"
 	"gg/domain"
 	"gg/mapper"
 	"gg/service"
@@ -22,7 +24,15 @@ func main() {
 
 	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
 
-	var service service.ServiceInterface = service.Service{}
+	var service service.ServiceInterface = service.Service{
+		DBService: data.NewInMemoryDBService(),
+		StartGGClient: startgg.Client{
+			GraphQLClient: graphql.Client{
+				Url:      os.Getenv("START_GG_API_URL"),
+				ApiToken: os.Getenv("START_GG_API_KEY"),
+			},
+		},
+	}
 
 	sets := make([]domain.Set, 0)
 

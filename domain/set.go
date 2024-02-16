@@ -58,7 +58,7 @@ type Character struct {
 
 type Selection struct {
 	Entrant   Entrant
-	Character Character
+	Character *Character
 }
 
 type Game struct {
@@ -88,7 +88,7 @@ func reverseString(s string) string {
 }
 
 func initScore(games *[]Game, displayScore string, winner, loser Entrant, totalGames int) *string {
-	fmt.Printf("Initializing score. games=%v displayScore=%s totalGames=%v\n", games, displayScore, totalGames)
+	// fmt.Printf("Initializing score. games=%v displayScore=%s totalGames=%v\n", games, displayScore, totalGames)
 	if displayScore == "DQ" {
 		return &displayScore
 	}
@@ -113,7 +113,6 @@ func initScore(games *[]Game, displayScore string, winner, loser Entrant, totalG
 		}
 	}
 	if len(scoreFromDisplayScore) > 0 && scoresFromGames != nil && len(*scoresFromGames) > 0 {
-		fmt.Printf("scoreFromDisplayScore=%s scoreFromGames=%s\n", scoreFromDisplayScore, *scoresFromGames)
 		numFromDisplayScore, err := strconv.Atoi(string(scoreFromDisplayScore[0]))
 		if err != nil {
 			panic(err)
