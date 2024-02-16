@@ -14,8 +14,9 @@ type ServiceInterface interface {
 	ToDomainSet(node startgg.Node) domain.Set
 	GetEvent()
 	GetUpsetThread(sets []domain.Set) *domain.UpsetThread
-	GetUpsetThreadDB()
+	GetUpsetThreadDB(slug string) *domain.UpsetThread
 	SubmitToSubreddit()
+	AddSets(slug string, upsetThread *domain.UpsetThread)
 }
 
 type Service struct {
@@ -174,16 +175,16 @@ func (s *Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
 		winnersUpsetThreadItems = append(winnersUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "winners"))
 	}
 	for _, set := range losers {
-		losersUpsetThreadItems = append(losersUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "winners"))
+		losersUpsetThreadItems = append(losersUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "losers"))
 	}
 	for _, set := range notables {
-		notablesUpsetThreadItems = append(notablesUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "winners"))
+		notablesUpsetThreadItems = append(notablesUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "notables"))
 	}
 	for _, set := range dqs {
-		dqsUpsetThreadItems = append(dqsUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "winners"))
+		dqsUpsetThreadItems = append(dqsUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "dqs"))
 	}
 	for _, set := range other {
-		otherUpsetThreadItems = append(otherUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "winners"))
+		otherUpsetThreadItems = append(otherUpsetThreadItems, mapper.SetToUpsetThreadItem(set, "other"))
 	}
 	return &domain.UpsetThread{
 		Winners:  winnersUpsetThreadItems,
@@ -194,9 +195,68 @@ func (s *Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	}
 }
 
-func (s *Service) GetUpsetThreadDB() {
-
+func (s *Service) GetUpsetThreadDB(slug string) *domain.UpsetThread {
+	setMapping := s.DBService.GetSets(slug)
+	var winners, losers, notables, dqs, other []domain.UpsetThreadItem
+	for setId, set := range *setMapping {
+		upsetThreadItem := mapper.DBSetToUpsetThreadItem(setId, set)
+		category := upsetThreadItem.Category
+		if category == "winners" {
+			winners = append(winners, *upsetThreadItem)
+		} else if category == "losers" {
+			losers = append(losers, *upsetThreadItem)
+		} else if category == "notables" {
+			notables = append(notables, *upsetThreadItem)
+		} else if category == "dqs" {
+			dqs = append(dqs, *upsetThreadItem)
+		} else {
+			other = append(other, *upsetThreadItem)
+		}
+	}
+	sort.Slice(winners, func(i, j int) bool {
+		return winners[i].UpsetFactor > winners[j].UpsetFactor
+	})
+	sort.Slice(losers, func(i, j int) bool {
+		return losers[i].UpsetFactor > losers[j].UpsetFactor
+	})
+	sort.Slice(notables, func(i, j int) bool {
+		return notables[i].UpsetFactor < notables[j].UpsetFactor
+	})
+	sort.Slice(dqs, func(i, j int) bool {
+		return dqs[i].UpsetFactor > dqs[j].UpsetFactor
+	})
+	sort.Slice(other, func(i, j int) bool {
+		return other[i].UpsetFactor > other[j].UpsetFactor
+	})
+	return &domain.UpsetThread{
+		Winners:  winners,
+		Losers:   losers,
+		Notables: notables,
+		DQs:      dqs,
+		Other:    other,
+	}
 }
+
 func (s *Service) SubmitToSubreddit() {
 
+}
+
+func (s *Service) AddSets(slug string, upsetThread *domain.UpsetThread) {
+	setMapping := make(map[string]string, 0)
+	for _, s := range upsetThread.Winners {
+		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
+	}
+	for _, s := range upsetThread.Losers {
+		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
+	}
+	for _, s := range upsetThread.Notables {
+		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
+	}
+	for _, s := range upsetThread.DQs {
+		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
+	}
+	for _, s := range upsetThread.Other {
+		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
+	}
+	s.DBService.AddSets(slug, &setMapping)
 }

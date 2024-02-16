@@ -52,10 +52,10 @@ func ToMarkdown(upsetThread *domain.UpsetThread, slug string) string {
 	for _, s := range upsetThread.DQs {
 		dqItems = append(dqItems, toDQLineItem(s))
 	}
-	winners := strings.Join(winnersItems, "\n")
-	losers := strings.Join(losersItems, "\n")
-	notables := strings.Join(notablesItems, "\n")
-	dqs := strings.Join(dqItems, "\n")
+	winners := strings.Join(winnersItems, "  \n")
+	losers := strings.Join(losersItems, "  \n")
+	notables := strings.Join(notablesItems, "  \n")
+	dqs := strings.Join(dqItems, "  \n")
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		panic(err)

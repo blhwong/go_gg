@@ -3,6 +3,7 @@ package data
 import (
 	"fmt"
 	"gg/client/startgg"
+	"strings"
 )
 
 type DBServiceInterface interface {
@@ -10,6 +11,8 @@ type DBServiceInterface interface {
 	GetCharacterName(key int) string
 	AddCharacters(characters []startgg.Character)
 	SetIsCharactersLoaded()
+	AddSets(slug string, setMapping *map[string]string)
+	GetSets(slug string) *map[string]string
 }
 
 type InMemoryDBService struct {
@@ -36,4 +39,25 @@ func (db *InMemoryDBService) AddCharacters(characters []startgg.Character) {
 
 func (db *InMemoryDBService) SetIsCharactersLoaded() {
 	db.Storage["is_character_loaded"] = "1"
+}
+
+func (db *InMemoryDBService) AddSets(slug string, setMapping *map[string]string) {
+	for setId, s := range *setMapping {
+		db.AddSet(slug, setId, s)
+	}
+}
+
+func (db *InMemoryDBService) AddSet(slug string, setId string, set string) {
+	db.Storage[fmt.Sprintf("%s_%s", slug, setId)] = set
+}
+
+func (db *InMemoryDBService) GetSets(slug string) *map[string]string {
+	setMapping := make(map[string]string, 0)
+	for key, set := range db.Storage {
+		parts := strings.Split(key, "_")
+		if parts[0] == slug {
+			setMapping[parts[1]] = set
+		}
+	}
+	return &setMapping
 }

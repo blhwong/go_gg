@@ -12,17 +12,10 @@ import (
 	"gg/service"
 	"os"
 	"sort"
+	"time"
 )
 
-func main() {
-	slugPtr := flag.String("slug", "", "Slug.")
-	titlePtr := flag.String("title", "", "Title.")
-	subredditPtr := flag.String("subreddit", "", "Subreddit.")
-	filePtr := flag.String("file", "", "File.")
-	frequencyMinutesPtr := flag.Int("frequency_minutes", 0, "Frequency minutes.")
-	flag.Parse()
-
-	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
+func process(slugPtr, titlePtr, subredditPtr, filePtr *string) {
 	var service service.ServiceInterface = &service.Service{
 		DBService: data.NewInMemoryDBService(),
 		StartGGClient: &startgg.Client{
@@ -55,7 +48,31 @@ func main() {
 		return sets[i].UpsetFactor > sets[j].UpsetFactor
 	})
 	upsetThread := service.GetUpsetThread(sets)
-	md := mapper.ToMarkdown(upsetThread, *slugPtr)
+	service.AddSets(*slugPtr, upsetThread)
+	savedUpsetThread := service.GetUpsetThreadDB(*slugPtr)
+	md := mapper.ToMarkdown(savedUpsetThread, *slugPtr)
+	outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), *titlePtr)
+	file, err := os.Create(outputName)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	l, err := file.WriteString(md)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v bytes written\n", l)
 
-	fmt.Println(md)
+}
+
+func main() {
+	slugPtr := flag.String("slug", "", "Slug.")
+	titlePtr := flag.String("title", "", "Title.")
+	subredditPtr := flag.String("subreddit", "", "Subreddit.")
+	filePtr := flag.String("file", "", "File.")
+	frequencyMinutesPtr := flag.Int("frequency_minutes", 0, "Frequency minutes.")
+	flag.Parse()
+
+	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
+	process(slugPtr, titlePtr, subredditPtr, filePtr)
 }
