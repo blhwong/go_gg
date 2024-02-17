@@ -14,6 +14,34 @@ import (
 	"time"
 )
 
+type FileInterface interface {
+	ReadFile(fileName string) []byte
+	WriteString(fileName, data string)
+}
+
+type File struct{}
+
+func (f *File) ReadFile(fileName string) []byte {
+	file, err := os.ReadFile(fileName)
+	if err != nil {
+		panic(err)
+	}
+	return file
+}
+
+func (f *File) WriteString(fileName, data string) {
+	outputFile, err := os.Create(fileName)
+	if err != nil {
+		panic(err)
+	}
+	defer outputFile.Close()
+	l, err := outputFile.WriteString(data)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v bytes written\n", l)
+}
+
 type ServiceInterface interface {
 	toDomainSet(node startgg.Node) domain.Set
 	getSetsFromAPI(slug string) *[]domain.Set
@@ -27,6 +55,7 @@ type ServiceInterface interface {
 type Service struct {
 	dbService     data.DBServiceInterface
 	startGGClient startgg.ClientInterface
+	file          FileInterface
 }
 
 func toDomainEntrant(entrant startgg.Entrant) domain.Entrant {
@@ -289,12 +318,9 @@ func (s *Service) Process(slug, title, subreddit, file string) {
 
 	if file != "" {
 		fmt.Println("Using file data")
-		file, err := os.ReadFile(file)
-		if err != nil {
-			panic(err)
-		}
+		storedFile := s.file.ReadFile(file)
 		var nodes []startgg.Node
-		if err := json.Unmarshal(file, &nodes); err != nil {
+		if err := json.Unmarshal(storedFile, &nodes); err != nil {
 			panic(err)
 		}
 		for _, node := range nodes {
@@ -312,21 +338,13 @@ func (s *Service) Process(slug, title, subreddit, file string) {
 	savedUpsetThread := s.getUpsetThreadDB(slug)
 	md := mapper.ToMarkdown(savedUpsetThread, slug)
 	outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), title)
-	outputFile, err := os.Create(outputName)
-	if err != nil {
-		panic(err)
-	}
-	defer outputFile.Close()
-	l, err := outputFile.WriteString(md)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%v bytes written\n", l)
+	s.file.WriteString(outputName, md)
 }
 
 func NewService() *Service {
 	return &Service{
 		dbService:     data.NewInMemoryDBService(),
 		startGGClient: startgg.NewClient(),
+		file:          &File{},
 	}
 }
