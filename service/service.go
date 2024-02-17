@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"gg/client/graphql"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
@@ -327,12 +326,7 @@ func (s *Service) Process(slug, title, subreddit, file string) {
 
 func NewService() *Service {
 	return &Service{
-		dbService: data.NewInMemoryDBService(),
-		startGGClient: &startgg.Client{
-			GraphQLClient: &graphql.Client{
-				Url:      os.Getenv("START_GG_API_URL"),
-				ApiToken: os.Getenv("START_GG_API_KEY"),
-			},
-		},
+		dbService:     data.NewInMemoryDBService(),
+		startGGClient: startgg.NewClient(),
 	}
 }

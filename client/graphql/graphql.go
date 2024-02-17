@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type ClientInterface interface {
@@ -13,8 +14,8 @@ type ClientInterface interface {
 }
 
 type Client struct {
-	Url      string
-	ApiToken string
+	url      string
+	apiToken string
 }
 
 type Payload struct {
@@ -28,12 +29,12 @@ func (client *Client) Query(query string, variables interface{}) []byte {
 	if err != nil {
 		panic(err)
 	}
-	req, err := http.NewRequest("POST", client.Url, bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", client.url, bytes.NewBuffer(body))
 	if err != nil {
 		panic(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.ApiToken))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.apiToken))
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -46,4 +47,11 @@ func (client *Client) Query(query string, variables interface{}) []byte {
 		panic(err)
 	}
 	return respBody
+}
+
+func NewClient() *Client {
+	return &Client{
+		url:      os.Getenv("START_GG_API_URL"),
+		apiToken: os.Getenv("START_GG_API_KEY"),
+	}
 }

@@ -1,6 +1,6 @@
 package startgg
 
-var EventsQuery string = `
+var eventsQuery string = `
 	query EventQuery(
 			$slug: String
 			$filters: SetFilters
@@ -71,7 +71,7 @@ var EventsQuery string = `
 		}
 	}
 `
-var CharactersQuery string = `
+var charactersQuery string = `
 	query CharactersQuery(
 		$slug: String
 	) {

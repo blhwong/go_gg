@@ -12,7 +12,7 @@ type ClientInterface interface {
 }
 
 type Client struct {
-	GraphQLClient graphql.ClientInterface
+	graphQLClient graphql.ClientInterface
 }
 
 type Entrant struct {
@@ -96,7 +96,7 @@ func (client *Client) GetEvent(slug string, page int) EventResponse {
 		Filters  filters `json:"filters"`
 		SortType string  `json:"sortType"`
 	}
-	resp := client.GraphQLClient.Query(EventsQuery, variables{slug, page, filters{3}, "RECENT"})
+	resp := client.graphQLClient.Query(eventsQuery, variables{slug, page, filters{3}, "RECENT"})
 	var eventResponse EventResponse
 	if err := json.Unmarshal(resp, &eventResponse); err != nil {
 		panic(err)
@@ -124,11 +124,15 @@ func (client *Client) GetCharacters() CharactersResponse {
 	type variables struct {
 		Slug string `json:"slug"`
 	}
-	resp := client.GraphQLClient.Query(CharactersQuery, variables{"game/ultimate"})
+	resp := client.graphQLClient.Query(charactersQuery, variables{"game/ultimate"})
 
 	var charactersResponse CharactersResponse
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
 		panic(err)
 	}
 	return charactersResponse
+}
+
+func NewClient() *Client {
+	return &Client{graphQLClient: graphql.NewClient()}
 }
