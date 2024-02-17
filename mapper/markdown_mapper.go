@@ -7,6 +7,23 @@ import (
 	"time"
 )
 
+func getOrdinal(n int) string {
+	if n >= 11 && n <= 13 {
+		return fmt.Sprintf("%dth", n)
+	}
+
+	switch n % 10 {
+	case 1:
+		return fmt.Sprintf("%dst", n)
+	case 2:
+		return fmt.Sprintf("%dnd", n)
+	case 3:
+		return fmt.Sprintf("%drd", n)
+	default:
+		return fmt.Sprintf("%dth", n)
+	}
+}
+
 func toLineItem(item domain.UpsetThreadItem) string {
 	words := []string{item.WinnersName}
 	if len(item.WinnersCharacters) > 0 {
@@ -22,7 +39,7 @@ func toLineItem(item domain.UpsetThreadItem) string {
 	if item.IsWinnersBracket {
 		words = append(words, losersSeed)
 	} else {
-		words = append(words, fmt.Sprintf("%v, out at %v", losersSeed, item.LosersPlacement))
+		words = append(words, fmt.Sprintf("%v, out at %s", losersSeed, getOrdinal(item.LosersPlacement)))
 	}
 	if item.UpsetFactor > 0 {
 		words = append(words, fmt.Sprintf("- Upset Factor %v", item.UpsetFactor))
