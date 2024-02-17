@@ -1,29 +1,33 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"gg/client/graphql"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
 	"gg/mapper"
 	"math"
+	"os"
 	"sort"
 	"strconv"
 	"time"
 )
 
 type ServiceInterface interface {
-	ToDomainSet(node startgg.Node) domain.Set
-	GetSetsFromAPI(slug string) *[]domain.Set
-	GetUpsetThread(sets []domain.Set) *domain.UpsetThread
-	GetUpsetThreadDB(slug string) *domain.UpsetThread
-	SubmitToSubreddit()
-	AddSets(slug string, upsetThread *domain.UpsetThread)
+	toDomainSet(node startgg.Node) domain.Set
+	getSetsFromAPI(slug string) *[]domain.Set
+	getUpsetThread(sets []domain.Set) *domain.UpsetThread
+	getUpsetThreadDB(slug string) *domain.UpsetThread
+	submitToSubreddit()
+	addSets(slug string, upsetThread *domain.UpsetThread)
+	Process(slug, title, subreddit, file string)
 }
 
 type Service struct {
-	DBService     data.DBServiceInterface
-	StartGGClient startgg.ClientInterface
+	dbService     data.DBServiceInterface
+	startGGClient startgg.ClientInterface
 }
 
 func toDomainEntrant(entrant startgg.Entrant) domain.Entrant {
@@ -37,12 +41,12 @@ func toDomainEntrant(entrant startgg.Entrant) domain.Entrant {
 }
 
 func (s *Service) getCharacterName(key int) string {
-	if !s.DBService.IsCharactersLoaded() {
-		res := s.StartGGClient.GetCharacters()
-		s.DBService.AddCharacters(res.Data.VideoGame.Characters)
-		s.DBService.SetIsCharactersLoaded()
+	if !s.dbService.IsCharactersLoaded() {
+		res := s.startGGClient.GetCharacters()
+		s.dbService.AddCharacters(res.Data.VideoGame.Characters)
+		s.dbService.SetIsCharactersLoaded()
 	}
-	return s.DBService.GetCharacterName(key)
+	return s.dbService.GetCharacterName(key)
 }
 
 func (s *Service) toDomainCharacter(selectionType string, value int) *domain.Character {
@@ -76,7 +80,7 @@ func (s *Service) toDomainGame(game startgg.Game) domain.Game {
 	}
 }
 
-func (s *Service) ToDomainSet(node startgg.Node) domain.Set {
+func (s *Service) toDomainSet(node startgg.Node) domain.Set {
 	entrants := make([]domain.Entrant, 0)
 	for _, slot := range node.Slots {
 		entrants = append(entrants, toDomainEntrant(slot.Entrant))
@@ -107,12 +111,12 @@ func (s *Service) ToDomainSet(node startgg.Node) domain.Set {
 	)
 }
 
-func (s *Service) GetSetsFromAPI(slug string) *[]domain.Set {
+func (s *Service) getSetsFromAPI(slug string) *[]domain.Set {
 	page := 1
 	var sets []domain.Set
 	for {
 		time.Sleep(800 * time.Millisecond)
-		res := s.StartGGClient.GetEvent(slug, page)
+		res := s.startGGClient.GetEvent(slug, page)
 		if res.Errors != nil {
 			panic(res.Errors)
 		}
@@ -123,7 +127,7 @@ func (s *Service) GetSetsFromAPI(slug string) *[]domain.Set {
 		}
 		page++
 		for _, node := range res.Data.Event.Sets.Nodes {
-			sets = append(sets, s.ToDomainSet(node))
+			sets = append(sets, s.toDomainSet(node))
 		}
 	}
 	return &sets
@@ -136,7 +140,7 @@ func applyFilter(upsetFactor, winnerInitialSeed, loserInitialSeed int, isDQ bool
 	return fulfillsMinUpsetFactor && fulfillsNotDQ && fulfillsMaxSeed && score != nil
 }
 
-func (s *Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
+func (s *Service) getUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	var winners, losers, notables, dqs, other []domain.Set
 	for _, set := range sets {
 		if set.IsWinnersBracket() && applyFilter(
@@ -215,8 +219,8 @@ func (s *Service) GetUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	}
 }
 
-func (s *Service) GetUpsetThreadDB(slug string) *domain.UpsetThread {
-	setMapping := s.DBService.GetSets(slug)
+func (s *Service) getUpsetThreadDB(slug string) *domain.UpsetThread {
+	setMapping := s.dbService.GetSets(slug)
 	var winners, losers, notables, dqs, other []domain.UpsetThreadItem
 	for setId, set := range *setMapping {
 		upsetThreadItem := mapper.DBSetToUpsetThreadItem(setId, set)
@@ -257,11 +261,11 @@ func (s *Service) GetUpsetThreadDB(slug string) *domain.UpsetThread {
 	}
 }
 
-func (s *Service) SubmitToSubreddit() {
+func (s *Service) submitToSubreddit() {
 
 }
 
-func (s *Service) AddSets(slug string, upsetThread *domain.UpsetThread) {
+func (s *Service) addSets(slug string, upsetThread *domain.UpsetThread) {
 	setMapping := make(map[string]string, 0)
 	for _, s := range upsetThread.Winners {
 		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
@@ -278,5 +282,57 @@ func (s *Service) AddSets(slug string, upsetThread *domain.UpsetThread) {
 	for _, s := range upsetThread.Other {
 		setMapping[s.Id] = mapper.UpsetThreadItemToDBSet(s)
 	}
-	s.DBService.AddSets(slug, &setMapping)
+	s.dbService.AddSets(slug, &setMapping)
+}
+
+func (s *Service) Process(slug, title, subreddit, file string) {
+	var sets []domain.Set
+
+	if file != "" {
+		fmt.Println("Using file data")
+		file, err := os.ReadFile(file)
+		if err != nil {
+			panic(err)
+		}
+		var nodes []startgg.Node
+		if err := json.Unmarshal(file, &nodes); err != nil {
+			panic(err)
+		}
+		for _, node := range nodes {
+			sets = append(sets, s.toDomainSet(node))
+		}
+	} else {
+		fmt.Println("Fetching data from startgg")
+		sets = *s.getSetsFromAPI(slug)
+	}
+	sort.Slice(sets, func(i, j int) bool {
+		return sets[i].UpsetFactor > sets[j].UpsetFactor
+	})
+	upsetThread := s.getUpsetThread(sets)
+	s.addSets(slug, upsetThread)
+	savedUpsetThread := s.getUpsetThreadDB(slug)
+	md := mapper.ToMarkdown(savedUpsetThread, slug)
+	outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), title)
+	outputFile, err := os.Create(outputName)
+	if err != nil {
+		panic(err)
+	}
+	defer outputFile.Close()
+	l, err := outputFile.WriteString(md)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v bytes written\n", l)
+}
+
+func NewService() *Service {
+	return &Service{
+		dbService: data.NewInMemoryDBService(),
+		startGGClient: &startgg.Client{
+			GraphQLClient: &graphql.Client{
+				Url:      os.Getenv("START_GG_API_URL"),
+				ApiToken: os.Getenv("START_GG_API_KEY"),
+			},
+		},
+	}
 }
