@@ -19,9 +19,9 @@ type FileInterface interface {
 	WriteString(fileName, data string)
 }
 
-type File struct{}
+type FileReaderWriter struct{}
 
-func (f *File) ReadFile(fileName string) []byte {
+func (f *FileReaderWriter) ReadFile(fileName string) []byte {
 	file, err := os.ReadFile(fileName)
 	if err != nil {
 		panic(err)
@@ -29,7 +29,7 @@ func (f *File) ReadFile(fileName string) []byte {
 	return file
 }
 
-func (f *File) WriteString(fileName, data string) {
+func (f *FileReaderWriter) WriteString(fileName, data string) {
 	outputFile, err := os.Create(fileName)
 	if err != nil {
 		panic(err)
@@ -317,7 +317,7 @@ func (s *Service) Process(slug, title, subreddit, file string) {
 	var sets []domain.Set
 
 	if file != "" {
-		fmt.Println("Using file data")
+		fmt.Println("Using file data", file)
 		storedFile := s.file.ReadFile(file)
 		var nodes []startgg.Node
 		if err := json.Unmarshal(storedFile, &nodes); err != nil {
@@ -341,10 +341,10 @@ func (s *Service) Process(slug, title, subreddit, file string) {
 	s.file.WriteString(outputName, md)
 }
 
-func NewService() *Service {
+func NewService(dbService data.DBServiceInterface, startGGClient startgg.ClientInterface, file FileInterface) *Service {
 	return &Service{
-		dbService:     data.NewInMemoryDBService(),
-		startGGClient: startgg.NewClient(),
-		file:          &File{},
+		dbService:     dbService,
+		startGGClient: startGGClient,
+		file:          file,
 	}
 }

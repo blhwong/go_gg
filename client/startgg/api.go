@@ -125,7 +125,6 @@ func (client *Client) GetCharacters() CharactersResponse {
 		Slug string `json:"slug"`
 	}
 	resp := client.graphQLClient.Query(charactersQuery, variables{"game/ultimate"})
-
 	var charactersResponse CharactersResponse
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
 		panic(err)

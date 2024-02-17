@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gg/client/startgg"
+	"gg/data"
 	"gg/service"
 )
 
@@ -15,6 +17,10 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
-	var service service.ServiceInterface = service.NewService()
+	var service service.ServiceInterface = service.NewService(
+		data.NewInMemoryDBService(),
+		startgg.NewClient(),
+		&service.FileReaderWriter{},
+	)
 	service.Process(*slugPtr, *titlePtr, *subredditPtr, *filePtr)
 }

@@ -1,0 +1,923 @@
+[
+  {
+    "id": 63321153,
+    "completedAt": 1690788640,
+    "games": [
+      {
+        "id": 17849387,
+        "winnerId": 13751308,
+        "orderNum": 1,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1795,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1332,
+            "entrant": {
+              "id": 13751308,
+              "name": "Sonix",
+              "initialSeedNum": 2,
+              "standing": {
+                "isFinal": true,
+                "placement": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17849388,
+        "winnerId": 12653548,
+        "orderNum": 2,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1795,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1332,
+            "entrant": {
+              "id": 13751308,
+              "name": "Sonix",
+              "initialSeedNum": 2,
+              "standing": {
+                "isFinal": true,
+                "placement": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17849389,
+        "winnerId": 12653548,
+        "orderNum": 3,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1795,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1332,
+            "entrant": {
+              "id": 13751308,
+              "name": "Sonix",
+              "initialSeedNum": 2,
+              "standing": {
+                "isFinal": true,
+                "placement": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17849390,
+        "winnerId": 12653548,
+        "orderNum": 4,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1795,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1332,
+            "entrant": {
+              "id": 13751308,
+              "name": "Sonix",
+              "initialSeedNum": 2,
+              "standing": {
+                "isFinal": true,
+                "placement": 2
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "identifier": "I",
+    "displayScore": "Sonix 1 - FaZe | Sparg0 3",
+    "fullRoundText": "Grand Final Reset",
+    "totalGames": 5,
+    "lPlacement": 2,
+    "wPlacement": 1,
+    "winnerId": 12653548,
+    "state": 3,
+    "setGamesType": 1,
+    "round": 4,
+    "phaseGroup": {
+      "displayIdentifier": "K1"
+    },
+    "slots": [
+      {
+        "entrant": {
+          "id": 13751308,
+          "name": "Sonix",
+          "initialSeedNum": 2,
+          "standing": {
+            "isFinal": true,
+            "placement": 2
+          }
+        }
+      },
+      {
+        "entrant": {
+          "id": 12653548,
+          "name": "FaZe | Sparg0",
+          "initialSeedNum": 1,
+          "standing": {
+            "isFinal": true,
+            "placement": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": 63278897,
+    "completedAt": 1690687933,
+    "games": [
+      {
+        "id": 17832415,
+        "winnerId": 13587336,
+        "orderNum": 1,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1271,
+            "entrant": {
+              "id": 13336015,
+              "name": "EFG/TG/AoR | Mar",
+              "initialSeedNum": 62,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1323,
+            "entrant": {
+              "id": 13587336,
+              "name": "LG | Zomba",
+              "initialSeedNum": 3,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17832416,
+        "winnerId": 13336015,
+        "orderNum": 2,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1271,
+            "entrant": {
+              "id": 13336015,
+              "name": "EFG/TG/AoR | Mar",
+              "initialSeedNum": 62,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1323,
+            "entrant": {
+              "id": 13587336,
+              "name": "LG | Zomba",
+              "initialSeedNum": 3,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17832417,
+        "winnerId": 13587336,
+        "orderNum": 3,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1271,
+            "entrant": {
+              "id": 13336015,
+              "name": "EFG/TG/AoR | Mar",
+              "initialSeedNum": 62,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1323,
+            "entrant": {
+              "id": 13587336,
+              "name": "LG | Zomba",
+              "initialSeedNum": 3,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17832430,
+        "winnerId": 13336015,
+        "orderNum": 4,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1271,
+            "entrant": {
+              "id": 13336015,
+              "name": "EFG/TG/AoR | Mar",
+              "initialSeedNum": 62,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1323,
+            "entrant": {
+              "id": 13587336,
+              "name": "LG | Zomba",
+              "initialSeedNum": 3,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17832507,
+        "winnerId": 13336015,
+        "orderNum": 5,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1271,
+            "entrant": {
+              "id": 13336015,
+              "name": "EFG/TG/AoR | Mar",
+              "initialSeedNum": 62,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1323,
+            "entrant": {
+              "id": 13587336,
+              "name": "LG | Zomba",
+              "initialSeedNum": 3,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "identifier": "A",
+    "displayScore": "LG | Zomba 2 - EFG/TG/AoR | Mar 3",
+    "fullRoundText": "Winners Round 1",
+    "totalGames": 5,
+    "lPlacement": 17,
+    "wPlacement": 9,
+    "winnerId": 13336015,
+    "state": 3,
+    "setGamesType": 1,
+    "round": 1,
+    "phaseGroup": {
+      "displayIdentifier": "H1"
+    },
+    "slots": [
+      {
+        "entrant": {
+          "id": 13587336,
+          "name": "LG | Zomba",
+          "initialSeedNum": 3,
+          "standing": {
+            "isFinal": true,
+            "placement": 33
+          }
+        }
+      },
+      {
+        "entrant": {
+          "id": 13336015,
+          "name": "EFG/TG/AoR | Mar",
+          "initialSeedNum": 62,
+          "standing": {
+            "isFinal": true,
+            "placement": 33
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": 63298282,
+    "completedAt": 1690742420,
+    "games": [
+      {
+        "id": 17840257,
+        "winnerId": 13034510,
+        "orderNum": 1,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1299,
+            "entrant": {
+              "id": 13034510,
+              "name": "ST|BLZ | MrLasagna",
+              "initialSeedNum": 453,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1777,
+            "entrant": {
+              "id": 13595508,
+              "name": "Cosmic | zaK9999",
+              "initialSeedNum": 37,
+              "standing": {
+                "isFinal": true,
+                "placement": 49
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840258,
+        "winnerId": 13034510,
+        "orderNum": 2,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1299,
+            "entrant": {
+              "id": 13034510,
+              "name": "ST|BLZ | MrLasagna",
+              "initialSeedNum": 453,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1777,
+            "entrant": {
+              "id": 13595508,
+              "name": "Cosmic | zaK9999",
+              "initialSeedNum": 37,
+              "standing": {
+                "isFinal": true,
+                "placement": 49
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840259,
+        "winnerId": 13595508,
+        "orderNum": 3,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1299,
+            "entrant": {
+              "id": 13034510,
+              "name": "ST|BLZ | MrLasagna",
+              "initialSeedNum": 453,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1777,
+            "entrant": {
+              "id": 13595508,
+              "name": "Cosmic | zaK9999",
+              "initialSeedNum": 37,
+              "standing": {
+                "isFinal": true,
+                "placement": 49
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840260,
+        "winnerId": 13595508,
+        "orderNum": 4,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1299,
+            "entrant": {
+              "id": 13034510,
+              "name": "ST|BLZ | MrLasagna",
+              "initialSeedNum": 453,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1777,
+            "entrant": {
+              "id": 13595508,
+              "name": "Cosmic | zaK9999",
+              "initialSeedNum": 37,
+              "standing": {
+                "isFinal": true,
+                "placement": 49
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840261,
+        "winnerId": 13034510,
+        "orderNum": 5,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1299,
+            "entrant": {
+              "id": 13034510,
+              "name": "ST|BLZ | MrLasagna",
+              "initialSeedNum": 453,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1777,
+            "entrant": {
+              "id": 13595508,
+              "name": "Cosmic | zaK9999",
+              "initialSeedNum": 37,
+              "standing": {
+                "isFinal": true,
+                "placement": 49
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "identifier": "X",
+    "displayScore": "ST|BLZ | MrLasagna 3 - Cosmic | zaK9999 2",
+    "fullRoundText": "Losers Round 1",
+    "totalGames": 5,
+    "lPlacement": 25,
+    "wPlacement": 17,
+    "winnerId": 13034510,
+    "state": 3,
+    "setGamesType": 1,
+    "round": -3,
+    "phaseGroup": {
+      "displayIdentifier": "I1"
+    },
+    "slots": [
+      {
+        "entrant": {
+          "id": 13034510,
+          "name": "ST|BLZ | MrLasagna",
+          "initialSeedNum": 453,
+          "standing": {
+            "isFinal": true,
+            "placement": 33
+          }
+        }
+      },
+      {
+        "entrant": {
+          "id": 13595508,
+          "name": "Cosmic | zaK9999",
+          "initialSeedNum": 37,
+          "standing": {
+            "isFinal": true,
+            "placement": 49
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": 63302992,
+    "completedAt": 1690743412,
+    "games": null,
+    "identifier": "R",
+    "displayScore": "DQ",
+    "fullRoundText": "Round 1",
+    "totalGames": 5,
+    "lPlacement": 33,
+    "wPlacement": 17,
+    "winnerId": 12701924,
+    "state": 3,
+    "setGamesType": 1,
+    "round": 1,
+    "phaseGroup": {
+      "displayIdentifier": "I3"
+    },
+    "slots": [
+      {
+        "entrant": {
+          "id": 12701924,
+          "name": "Cesc",
+          "initialSeedNum": 454,
+          "standing": {
+            "isFinal": true,
+            "placement": 257
+          }
+        }
+      },
+      {
+        "entrant": {
+          "id": 13015530,
+          "name": "SC | Finos | Rugar",
+          "initialSeedNum": 262,
+          "standing": {
+            "isFinal": true,
+            "placement": 385
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": 63276101,
+    "completedAt": 1690677324,
+    "games": null,
+    "identifier": "Y",
+    "displayScore": "DQ",
+    "fullRoundText": "Losers Round 1",
+    "totalGames": 5,
+    "lPlacement": 17,
+    "wPlacement": 13,
+    "winnerId": 12656021,
+    "state": 3,
+    "setGamesType": 1,
+    "round": -4,
+    "phaseGroup": {
+      "displayIdentifier": "G1"
+    },
+    "slots": [
+      {
+        "entrant": {
+          "id": 12644628,
+          "name": "NeoMX/ST | Daige",
+          "initialSeedNum": 61,
+          "standing": {
+            "isFinal": true,
+            "placement": 513
+          }
+        }
+      },
+      {
+        "entrant": {
+          "id": 12656021,
+          "name": "LCA I RenRen",
+          "initialSeedNum": 644,
+          "standing": {
+            "isFinal": true,
+            "placement": 257
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": 63298227,
+    "completedAt": 1690743397,
+    "games": [
+      {
+        "id": 17840665,
+        "winnerId": 12653548,
+        "orderNum": 1,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1539,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1295,
+            "entrant": {
+              "id": 13614471,
+              "name": "WF | Guilheww",
+              "initialSeedNum": 32,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840666,
+        "winnerId": 13614471,
+        "orderNum": 2,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1539,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1295,
+            "entrant": {
+              "id": 13614471,
+              "name": "WF | Guilheww",
+              "initialSeedNum": 32,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840667,
+        "winnerId": 12653548,
+        "orderNum": 3,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1275,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1295,
+            "entrant": {
+              "id": 13614471,
+              "name": "WF | Guilheww",
+              "initialSeedNum": 32,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840668,
+        "winnerId": 13614471,
+        "orderNum": 4,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1275,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1295,
+            "entrant": {
+              "id": 13614471,
+              "name": "WF | Guilheww",
+              "initialSeedNum": 32,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 17840669,
+        "winnerId": 12653548,
+        "orderNum": 5,
+        "selections": [
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1275,
+            "entrant": {
+              "id": 12653548,
+              "name": "FaZe | Sparg0",
+              "initialSeedNum": 1,
+              "standing": {
+                "isFinal": true,
+                "placement": 1
+              }
+            }
+          },
+          {
+            "orderNum": null,
+            "selectionType": "CHARACTER",
+            "selectionValue": 1295,
+            "entrant": {
+              "id": 13614471,
+              "name": "WF | Guilheww",
+              "initialSeedNum": 32,
+              "standing": {
+                "isFinal": true,
+                "placement": 33
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "identifier": "A",
+    "displayScore": "FaZe | Sparg0 3 - WF | Guilheww 2",
+    "fullRoundText": "Winners Round 1",
+    "totalGames": 5,
+    "lPlacement": 17,
+    "wPlacement": 9,
+    "winnerId": 12653548,
+    "state": 3,
+    "setGamesType": 1,
+    "round": 1,
+    "phaseGroup": {
+      "displayIdentifier": "I1"
+    },
+    "slots": [
+      {
+        "entrant": {
+          "id": 12653548,
+          "name": "FaZe | Sparg0",
+          "initialSeedNum": 1,
+          "standing": {
+            "isFinal": true,
+            "placement": 1
+          }
+        }
+      },
+      {
+        "entrant": {
+          "id": 13614471,
+          "name": "WF | Guilheww",
+          "initialSeedNum": 32,
+          "standing": {
+            "isFinal": true,
+            "placement": 33
+          }
+        }
+      }
+    ]
+  }
+]
