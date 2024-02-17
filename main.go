@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func process(slugPtr, titlePtr, subredditPtr, filePtr *string) {
+func process(slug, title, subreddit, file string) {
 	var service service.ServiceInterface = &service.Service{
 		DBService: data.NewInMemoryDBService(),
 		StartGGClient: &startgg.Client{
@@ -26,11 +26,11 @@ func process(slugPtr, titlePtr, subredditPtr, filePtr *string) {
 		},
 	}
 
-	sets := make([]domain.Set, 0)
+	var sets []domain.Set
 
-	if filePtr != nil {
+	if file != "" {
 		fmt.Println("Using file data")
-		file, err := os.ReadFile(*filePtr)
+		file, err := os.ReadFile(file)
 		if err != nil {
 			panic(err)
 		}
@@ -43,21 +43,22 @@ func process(slugPtr, titlePtr, subredditPtr, filePtr *string) {
 		}
 	} else {
 		fmt.Println("Fetching data from startgg")
+		sets = *service.GetSetsFromAPI(slug)
 	}
 	sort.Slice(sets, func(i, j int) bool {
 		return sets[i].UpsetFactor > sets[j].UpsetFactor
 	})
 	upsetThread := service.GetUpsetThread(sets)
-	service.AddSets(*slugPtr, upsetThread)
-	savedUpsetThread := service.GetUpsetThreadDB(*slugPtr)
-	md := mapper.ToMarkdown(savedUpsetThread, *slugPtr)
-	outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), *titlePtr)
-	file, err := os.Create(outputName)
+	service.AddSets(slug, upsetThread)
+	savedUpsetThread := service.GetUpsetThreadDB(slug)
+	md := mapper.ToMarkdown(savedUpsetThread, slug)
+	outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), title)
+	outputFile, err := os.Create(outputName)
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
-	l, err := file.WriteString(md)
+	defer outputFile.Close()
+	l, err := outputFile.WriteString(md)
 	if err != nil {
 		panic(err)
 	}
@@ -74,5 +75,5 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
-	process(slugPtr, titlePtr, subredditPtr, filePtr)
+	process(*slugPtr, *titlePtr, *subredditPtr, *filePtr)
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
@@ -8,11 +9,12 @@ import (
 	"math"
 	"sort"
 	"strconv"
+	"time"
 )
 
 type ServiceInterface interface {
 	ToDomainSet(node startgg.Node) domain.Set
-	GetEvent()
+	GetSetsFromAPI(slug string) *[]domain.Set
 	GetUpsetThread(sets []domain.Set) *domain.UpsetThread
 	GetUpsetThreadDB(slug string) *domain.UpsetThread
 	SubmitToSubreddit()
@@ -105,8 +107,26 @@ func (s *Service) ToDomainSet(node startgg.Node) domain.Set {
 	)
 }
 
-func (s *Service) GetEvent() {
-
+func (s *Service) GetSetsFromAPI(slug string) *[]domain.Set {
+	page := 1
+	var sets []domain.Set
+	for {
+		time.Sleep(800 * time.Millisecond)
+		res := s.StartGGClient.GetEvent(slug, page)
+		if res.Errors != nil {
+			panic(res.Errors)
+		}
+		totalPages := res.Data.Event.Sets.PageInfo.TotalPages
+		fmt.Printf("page: %v totalPage: %v\n", page, totalPages)
+		if page > totalPages {
+			break
+		}
+		page++
+		for _, node := range res.Data.Event.Sets.Nodes {
+			sets = append(sets, s.ToDomainSet(node))
+		}
+	}
+	return &sets
 }
 
 func applyFilter(upsetFactor, winnerInitialSeed, loserInitialSeed int, isDQ bool, score *string, minUpsetFactor, maxSeed int, includeDQ bool) bool {

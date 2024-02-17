@@ -69,17 +69,20 @@ type EventResponse struct {
 			UpdatedAt int    `json:"updatedAt"`
 			Sets      struct {
 				PageInfo struct {
-					Total     int    `json:"total"`
-					TotalPage int    `json:"totalPage"`
-					Page      int    `json:"page"`
-					PerPage   int    `json:"perPage"`
-					SortBy    string `json:"sortBy"`
-					Filter    string `json:"filter"`
+					Total      int    `json:"total"`
+					TotalPages int    `json:"totalPages"`
+					Page       int    `json:"page"`
+					PerPage    int    `json:"perPage"`
+					SortBy     string `json:"sortBy"`
+					Filter     string `json:"filter"`
 				} `json:"pageInfo"`
 				Nodes []Node `json:"nodes"`
 			} `json:"sets"`
 		} `json:"event"`
 	} `json:"data"`
+	Errors []struct {
+		Message string `json:"message"`
+	} `json:"errors"`
 }
 
 func (client *Client) GetEvent(slug string, page int) EventResponse {
