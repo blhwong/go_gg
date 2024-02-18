@@ -18,7 +18,7 @@ func main() {
 
 	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
 	var service service.ServiceInterface = service.NewService(
-		data.NewInMemoryDBService(),
+		data.NewRedisDBService(),
 		startgg.NewClient(),
 		&service.FileReaderWriter{},
 	)
