@@ -1,6 +1,7 @@
 package service
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"gg/client/startgg"
@@ -9,6 +10,7 @@ import (
 	"gg/mapper"
 	"math"
 	"os"
+	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -247,6 +249,20 @@ func (s *Service) getUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	}
 }
 
+func defaultSort(entry []domain.UpsetThreadItem, i, j domain.UpsetThreadItem) int {
+	return cmp.Or(
+		cmp.Compare(j.UpsetFactor, i.UpsetFactor),
+		cmp.Compare(i.WinnersName, j.WinnersName),
+	)
+}
+
+func notablesSort(entry []domain.UpsetThreadItem, i, j domain.UpsetThreadItem) int {
+	return cmp.Or(
+		cmp.Compare(i.UpsetFactor, j.UpsetFactor),
+		cmp.Compare(i.WinnersName, j.WinnersName),
+	)
+}
+
 func (s *Service) GetUpsetThreadDB(slug, title string) *domain.UpsetThread {
 	setMapping := s.dbService.GetSets(slug)
 	var winners, losers, notables, dqs, other []domain.UpsetThreadItem
@@ -265,20 +281,20 @@ func (s *Service) GetUpsetThreadDB(slug, title string) *domain.UpsetThread {
 			other = append(other, *upsetThreadItem)
 		}
 	}
-	sort.Slice(winners, func(i, j int) bool {
-		return winners[i].UpsetFactor > winners[j].UpsetFactor
+	slices.SortFunc(winners, func(i, j domain.UpsetThreadItem) int {
+		return defaultSort(winners, i, j)
 	})
-	sort.Slice(losers, func(i, j int) bool {
-		return losers[i].UpsetFactor > losers[j].UpsetFactor
+	slices.SortFunc(losers, func(i, j domain.UpsetThreadItem) int {
+		return defaultSort(losers, i, j)
 	})
-	sort.Slice(notables, func(i, j int) bool {
-		return notables[i].UpsetFactor < notables[j].UpsetFactor
+	slices.SortFunc(notables, func(i, j domain.UpsetThreadItem) int {
+		return notablesSort(notables, i, j)
 	})
-	sort.Slice(dqs, func(i, j int) bool {
-		return dqs[i].UpsetFactor > dqs[j].UpsetFactor
+	slices.SortFunc(dqs, func(i, j domain.UpsetThreadItem) int {
+		return defaultSort(dqs, i, j)
 	})
-	sort.Slice(other, func(i, j int) bool {
-		return other[i].UpsetFactor > other[j].UpsetFactor
+	slices.SortFunc(other, func(i, j domain.UpsetThreadItem) int {
+		return defaultSort(other, i, j)
 	})
 	return &domain.UpsetThread{
 		Slug:     slug,

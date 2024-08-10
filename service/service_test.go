@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"gg/client/startgg"
 	"gg/data"
+	"gg/domain"
 	"os"
+	"slices"
 	"testing"
 )
 
@@ -68,4 +70,38 @@ func TestServiceSetsFromAPI(t *testing.T) {
 		"",
 		"",
 	)
+}
+
+func TestSort(t *testing.T) {
+	var winners []domain.UpsetThreadItem = []domain.UpsetThreadItem{
+		{UpsetFactor: 5, WinnersName: "f"},
+		{UpsetFactor: 6, WinnersName: "c"},
+		{UpsetFactor: 7, WinnersName: "b"},
+		{UpsetFactor: 6, WinnersName: "d"},
+		{UpsetFactor: 5, WinnersName: "e"},
+		{UpsetFactor: 8, WinnersName: "a"},
+	}
+
+	slices.SortFunc(winners, func(i, j domain.UpsetThreadItem) int {
+		return defaultSort(winners, i, j)
+	})
+
+	var expectedWinners []domain.UpsetThreadItem = []domain.UpsetThreadItem{
+		{UpsetFactor: 8, WinnersName: "a"},
+		{UpsetFactor: 7, WinnersName: "b"},
+		{UpsetFactor: 6, WinnersName: "c"},
+		{UpsetFactor: 6, WinnersName: "d"},
+		{UpsetFactor: 5, WinnersName: "e"},
+		{UpsetFactor: 5, WinnersName: "f"},
+	}
+
+	for i, winner := range winners {
+		expected := expectedWinners[i]
+		if expected.UpsetFactor != winner.UpsetFactor {
+			t.Errorf("Failed upset factor. Expected %v, got %v", expected.UpsetFactor, winner.UpsetFactor)
+		}
+		if expected.WinnersName != winner.WinnersName {
+			t.Errorf("Failed winners name. Expected %v, got %v", expected.WinnersName, winner.WinnersName)
+		}
+	}
 }
