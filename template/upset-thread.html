@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{.Title}}</title>
+        <link rel="stylesheet" href="static/stylesheets/upset-thread.css">
+    </head>
+    <body>
+        <div id="upset-thread">
+            <div>
+                <a href="https://start.gg/{{.Slug}}" target="_blank" rel="noopener noreferrer">Bracket</a>
+                <p><em>Last updated at: {{.LastUpdatedAt}}</em></p>
+            </div>
+            <h1>Winners</h1>
+                <section>
+                    {{range .Winners}}
+                        {{if .Bold}}
+                            <div><strong>{{.Content}}</strong></div>
+                        {{else}}
+                            <div>{{.Content}}</div>
+                        {{end}}
+                    {{end}}
+                </section>
+            <h1>Losers</h1>
+                <section>
+                    {{range .Losers}}
+                        {{if .Bold}}
+                            <div><strong>{{.Content}}</strong></div>
+                        {{else}}
+                            <div>{{.Content}}</div>
+                        {{end}}
+                    {{end}}
+                </section>
+            <h1>Notables</h1>
+                <section>
+                    {{range .Notables}}
+                        {{if .Bold}}
+                            <div><strong>{{.Content}}</strong></div>
+                        {{else}}
+                            <div>{{.Content}}</div>
+                        {{end}}
+                    {{end}}
+                </section>
+            <h1>DQs</h1>
+                <section>
+                    {{range .DQs}}
+                        <div>{{.Content}}</div>
+                    {{end}}
+                </section>
+        </div>
+        <script type="text/javascript">
+            (function () {
+                var data = document.getElementById("upset-thread");
+                var conn = new WebSocket("ws://{{.Host}}/ws");
+                conn.onclose = function (evt) {
+                    data.textContent = 'Connection closed';
+                }
+                conn.onmessage = function (evt) {
+                    console.log('file updated', evt);
+                    data.innerHTML = "<div>Hello world!</div>"
+                }
+            })();
+        </script>
+    </body>
+</html>

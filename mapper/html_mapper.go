@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func toLineItem(item domain.UpsetThreadItem) string {
+func toLineItemHTML(item domain.UpsetThreadItem) *domain.UpsetThreadItemHTML {
 	words := []string{item.WinnersName}
 	if len(item.WinnersCharacters) > 0 {
 		words = append(words, fmt.Sprintf("(%s)", item.WinnersCharacters))
@@ -27,55 +27,51 @@ func toLineItem(item domain.UpsetThreadItem) string {
 	if item.UpsetFactor > 0 {
 		words = append(words, fmt.Sprintf("- Upset Factor %v", item.UpsetFactor))
 	}
-	text := strings.Join(words, " ")
+	content := strings.Join(words, " ")
+	var bold bool
 	if item.UpsetFactor >= 4 {
-		return fmt.Sprintf("**%s**", text)
+		bold = true
 	}
-	return text
+	return &domain.UpsetThreadItemHTML{
+		Content: content,
+		Bold:    bold,
+	}
 }
 
-func toDQLineItem(item domain.UpsetThreadItem) string {
-	return item.LosersName
+func toDQLineItemHTML(item domain.UpsetThreadItem) *domain.UpsetThreadItemHTML {
+	return &domain.UpsetThreadItemHTML{
+		Content: item.LosersName,
+	}
 }
 
-func ToMarkdown(upsetThread *domain.UpsetThread, slug string) string {
-	var winnersItems, losersItems, notablesItems, dqItems []string
+func ToHTML(upsetThread *domain.UpsetThread, host string) *domain.UpsetThreadHTML {
+	var winners, losers, notables, dqs []*domain.UpsetThreadItemHTML
 	for _, s := range upsetThread.Winners {
-		winnersItems = append(winnersItems, toLineItem(s))
+		winners = append(winners, toLineItemHTML(s))
 	}
 	for _, s := range upsetThread.Losers {
-		losersItems = append(losersItems, toLineItem(s))
+		losers = append(losers, toLineItemHTML(s))
 	}
 	for _, s := range upsetThread.Notables {
-		notablesItems = append(notablesItems, toLineItem(s))
+		notables = append(notables, toLineItemHTML(s))
 	}
 	for _, s := range upsetThread.DQs {
-		dqItems = append(dqItems, toDQLineItem(s))
+		dqs = append(dqs, toDQLineItemHTML(s))
 	}
-	winners := strings.Join(winnersItems, "  \n")
-	losers := strings.Join(losersItems, "  \n")
-	notables := strings.Join(notablesItems, "  \n")
-	dqs := strings.Join(dqItems, "  \n")
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		panic(err)
 	}
 	currentTime := time.Now().In(location)
-	t := currentTime.Format("01/02/2006 03:04pm MST")
-	return fmt.Sprintf(`[Bracket](https;//start.gg/%s)
-
-# Winners
-%s
-
-# Losers
-%s
-
-# Notables
-%s
-
-# DQs
-%s
-
-*Last updated at: %s*
-`, slug, winners, losers, notables, dqs, t)
+	lastUpdatedAt := currentTime.Format("01/02/2006 03:04pm MST")
+	return &domain.UpsetThreadHTML{
+		Host:          host,
+		Title:         upsetThread.Title,
+		Slug:          upsetThread.Slug,
+		LastUpdatedAt: lastUpdatedAt,
+		Winners:       winners,
+		Losers:        losers,
+		Notables:      notables,
+		DQs:           dqs,
+	}
 }
