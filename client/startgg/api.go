@@ -132,6 +132,6 @@ func (client *Client) GetCharacters() CharactersResponse {
 	return charactersResponse
 }
 
-func NewClient() *Client {
-	return &Client{graphQLClient: graphql.NewClient()}
+func NewClient(url, apiToken string, httpClient graphql.HttpClientInterface) *Client {
+	return &Client{graphQLClient: graphql.NewClient(url, apiToken, httpClient)}
 }

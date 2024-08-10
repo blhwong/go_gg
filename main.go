@@ -6,6 +6,8 @@ import (
 	"gg/client/startgg"
 	"gg/data"
 	"gg/service"
+	"net/http"
+	"os"
 )
 
 func main() {
@@ -19,7 +21,7 @@ func main() {
 	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
 	var service service.ServiceInterface = service.NewService(
 		data.NewRedisDBService(),
-		startgg.NewClient(),
+		startgg.NewClient(os.Getenv("START_GG_API_URL"), os.Getenv("START_GG_API_KEY"), &http.Client{}),
 		&service.FileReaderWriter{},
 	)
 	service.Process(*slugPtr, *titlePtr, *subredditPtr, *filePtr)

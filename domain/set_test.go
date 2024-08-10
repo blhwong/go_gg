@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -173,30 +174,32 @@ var setTestCases []setTestCase = []setTestCase{
 
 func TestSet(t *testing.T) {
 	for idx, test := range setTestCases {
-		result := *test.set.Score
-		expected := test.expected
-		if result != expected {
-			t.Fatalf("Test case %v: Scores failed. Result %s, expected %s", idx+1, result, expected)
-		}
-		resultWinnersSelection := test.set.GetWinnerCharacterSelections()
-		expectedWinnersSelection := test.expectedWinnersSelection
-		if resultWinnersSelection != expectedWinnersSelection {
-			t.Fatalf("Test case %v: Winners character selections failed. Result %s, expected %s", idx+1, resultWinnersSelection, expectedWinnersSelection)
-		}
-		resultLosersSelection := test.set.GetLoserCharacterSelections()
-		expectedLosersSelection := test.expectedLosersSelection
-		if resultLosersSelection != expectedLosersSelection {
-			t.Fatalf("Test case %v: Losers character selections failed. Result %s, expected %s", idx+1, resultLosersSelection, expectedLosersSelection)
-		}
-		resultIsDQAndOut := test.set.IsDQAndOut()
-		expectedIsDQAndOut := test.expectedIsDQAndOut
-		if resultIsDQAndOut != expectedIsDQAndOut {
-			t.Fatalf("Test case %v: DQ and out failed. Result %t, expected %t", idx+1, resultIsDQAndOut, expectedIsDQAndOut)
-		}
-		resultIsNotable := test.set.IsNotable()
-		expectedIsNotable := test.expectedIsNotable
-		if resultIsNotable != expectedIsNotable {
-			t.Fatalf("Test case %v: Notable failed. Result %t, expected %t", idx+1, resultIsNotable, expectedIsNotable)
-		}
+		t.Run(fmt.Sprintf("Test case %v", idx+1), func(t *testing.T) {
+			result := *test.set.Score
+			expected := test.expected
+			if result != expected {
+				t.Errorf("Scores failed. Result %s, expected %s", result, expected)
+			}
+			resultWinnersSelection := test.set.GetWinnerCharacterSelections()
+			expectedWinnersSelection := test.expectedWinnersSelection
+			if resultWinnersSelection != expectedWinnersSelection {
+				t.Errorf("Winners character selections failed. Result %s, expected %s", resultWinnersSelection, expectedWinnersSelection)
+			}
+			resultLosersSelection := test.set.GetLoserCharacterSelections()
+			expectedLosersSelection := test.expectedLosersSelection
+			if resultLosersSelection != expectedLosersSelection {
+				t.Errorf("Losers character selections failed. Result %s, expected %s", resultLosersSelection, expectedLosersSelection)
+			}
+			resultIsDQAndOut := test.set.IsDQAndOut()
+			expectedIsDQAndOut := test.expectedIsDQAndOut
+			if resultIsDQAndOut != expectedIsDQAndOut {
+				t.Errorf("DQ and out failed. Result %t, expected %t", resultIsDQAndOut, expectedIsDQAndOut)
+			}
+			resultIsNotable := test.set.IsNotable()
+			expectedIsNotable := test.expectedIsNotable
+			if resultIsNotable != expectedIsNotable {
+				t.Errorf("Notable failed. Result %t, expected %t", resultIsNotable, expectedIsNotable)
+			}
+		})
 	}
 }

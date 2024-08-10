@@ -6,16 +6,20 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 )
 
 type ClientInterface interface {
 	Query(query string, variables interface{}) []byte
 }
 
+type HttpClientInterface interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type Client struct {
-	url      string
-	apiToken string
+	url        string
+	apiToken   string
+	httpClient HttpClientInterface
 }
 
 type Payload struct {
@@ -35,8 +39,7 @@ func (client *Client) Query(query string, variables interface{}) []byte {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.apiToken))
-	httpClient := &http.Client{}
-	resp, err := httpClient.Do(req)
+	resp, err := client.httpClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
@@ -49,9 +52,10 @@ func (client *Client) Query(query string, variables interface{}) []byte {
 	return respBody
 }
 
-func NewClient() *Client {
+func NewClient(url, apiToken string, httpClient HttpClientInterface) *Client {
 	return &Client{
-		url:      os.Getenv("START_GG_API_URL"),
-		apiToken: os.Getenv("START_GG_API_KEY"),
+		url:        url,
+		apiToken:   apiToken,
+		httpClient: httpClient,
 	}
 }
