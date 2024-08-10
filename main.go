@@ -1,16 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"flag"
-	"fmt"
 	"gg/client/startgg"
 	"gg/data"
+	"gg/domain"
 	"gg/mapper"
 	"gg/service"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"text/template"
 	"time"
 
@@ -26,66 +26,54 @@ const (
 
 	// Send pings to client with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
-
-	// Poll file for changes with this period.
-	filePeriod = 10 * time.Second
 )
 
 var (
-	addr                = flag.String("addr", ":8080", "http service address")
-	homeTempl           = template.Must(template.New("").Parse(homeHTML))
-	upsetThreadTemplate = template.Must(template.ParseFiles("template/upset-thread.html"))
-	filename            = "output/1723309578401 Supernova Ultimate Singles Upset Thread.md"
-	upgrader            = websocket.Upgrader{
+	addr                    = flag.String("addr", ":8080", "http service address")
+	slug                    = flag.String("slug", "", "Slug.")
+	title                   = flag.String("title", "", "Title.")
+	subreddit               = flag.String("subreddit", "", "Subreddit.")
+	file                    = flag.String("file", "", "File.")
+	upsetThreadTemplate     = template.Must(template.ParseFiles("template/upset-thread.tmpl"))
+	upsetThreadHTMLTemplate = template.Must(template.ParseFiles("template/upset-thread.html"))
+	upgrader                = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
 )
 
-type HomeHandler struct {
-	service      service.ServiceInterface
-	slugPtr      *string
-	titlePtr     *string
-	subredditPtr *string
-	filePtr      *string
+type IndexHandler struct {
+	service service.ServiceInterface
 }
 
-type TestHandler struct{}
+type WebSockerHandler struct {
+	service service.ServiceInterface
+}
 
 func main() {
-	slugPtr := flag.String("slug", "", "Slug.")
-	titlePtr := flag.String("title", "", "Title.")
-	subredditPtr := flag.String("subreddit", "", "Subreddit.")
-	filePtr := flag.String("file", "", "File.")
-	frequencyMinutesPtr := flag.Int("frequency_minutes", 0, "Frequency minutes.")
 	flag.Parse()
 
-	fmt.Printf("slugPtr: %s, titlePtr: %s, subredditPtr: %s, filePtr: %s, frequencyMinutesPtr: %v\n", *slugPtr, *titlePtr, *subredditPtr, *filePtr, *frequencyMinutesPtr)
 	var service service.ServiceInterface = service.NewService(
 		data.NewRedisDBService(),
 		startgg.NewClient(os.Getenv("START_GG_API_URL"), os.Getenv("START_GG_API_KEY"), &http.Client{}),
 		&service.FileReaderWriter{},
 	)
-	homeHandler := HomeHandler{
-		service:      service,
-		slugPtr:      slugPtr,
-		titlePtr:     titlePtr,
-		subredditPtr: subredditPtr,
-		filePtr:      filePtr,
+	indexHandler := IndexHandler{
+		service: service,
 	}
 
-	// testHandler := TestHandler{}
+	webSocketHandler := WebSockerHandler{
+		service: service,
+	}
 
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.Handle("/", &homeHandler)
-	// http.Handle("/", &testHandler)
-	// http.HandleFunc("/", serveHome)
-	http.HandleFunc("/ws", serveWs)
-	http.ListenAndServe(":8080", nil)
+	http.Handle("/", &indexHandler)
+	http.Handle("/ws", &webSocketHandler)
+	http.ListenAndServe(*addr, nil)
 }
 
-func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
@@ -94,97 +82,53 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	upsetThread := h.service.Process(*h.slugPtr, *h.titlePtr, *h.subredditPtr, *h.filePtr)
+	upsetThread := h.service.GetUpsetThreadDB(*slug, *title)
 	htmlUpsetThread := mapper.ToHTML(upsetThread, r.Host)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	upsetThreadTemplate.Execute(w, &htmlUpsetThread)
+	upsetThreadHTMLTemplate.Execute(w, &htmlUpsetThread)
 }
 
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
+func reader(ws *websocket.Conn) {
+	defer ws.Close()
+	ws.SetReadLimit(512)
+	ws.SetReadDeadline(time.Now().Add(pongWait))
+	ws.SetPongHandler(func(string) error { ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	for {
+		_, _, err := ws.ReadMessage()
+		if err != nil {
+			break
+		}
 	}
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	p, lastMod, err := readFileIfModified(time.Time{})
-	if err != nil {
-		p = []byte(err.Error())
-		lastMod = time.Unix(0, 0)
-	}
-	var v = struct {
-		Host    string
-		Data    string
-		LastMod string
-	}{
-		r.Host,
-		string(p),
-		strconv.FormatInt(lastMod.UnixNano(), 16),
-	}
-	homeTempl.Execute(w, &v)
 }
 
-func (h *TestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
+func (h *WebSockerHandler) getUpsetThreadHTML(c chan *domain.UpsetThreadHTML) {
+	for {
+		upsetThread := h.service.Process(*slug, *title, *subreddit, *file)
+		htmlUpsetThread := mapper.ToHTML(upsetThread, "")
+		c <- htmlUpsetThread
 	}
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	p, lastMod, err := readFileIfModified(time.Time{})
-	if err != nil {
-		p = []byte(err.Error())
-		lastMod = time.Unix(0, 0)
-	}
-	var v = struct {
-		Host    string
-		Data    string
-		LastMod string
-	}{
-		r.Host,
-		string(p),
-		strconv.FormatInt(lastMod.UnixNano(), 16),
-	}
-	homeTempl.Execute(w, &v)
 }
 
-func readFileIfModified(lastMod time.Time) ([]byte, time.Time, error) {
-	fi, err := os.Stat(filename)
-	if err != nil {
-		return nil, lastMod, err
-	}
-	if !fi.ModTime().After(lastMod) {
-		return nil, lastMod, nil
-	}
-	p, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, fi.ModTime(), err
-	}
-	return p, fi.ModTime(), nil
-}
-
-func writer(ws *websocket.Conn, lastMod time.Time) {
+func (h *WebSockerHandler) writer(ws *websocket.Conn) {
 	lastError := ""
 	pingTicker := time.NewTicker(pingPeriod)
-	fileTicker := time.NewTicker(filePeriod)
+	upsetThreadChan := make(chan *domain.UpsetThreadHTML)
+
+	go h.getUpsetThreadHTML(upsetThreadChan)
+
 	defer func() {
 		pingTicker.Stop()
-		fileTicker.Stop()
 		ws.Close()
 	}()
 	for {
 		select {
-		case <-fileTicker.C:
+		case htmlUpsetThread := <-upsetThreadChan:
 			var p []byte
 			var err error
 
-			p, lastMod, err = readFileIfModified(lastMod)
+			var buff bytes.Buffer
+			upsetThreadTemplate.Execute(&buff, htmlUpsetThread)
+			p = buff.Bytes()
 
 			if err != nil {
 				if s := err.Error(); s != lastError {
@@ -209,7 +153,7 @@ func writer(ws *websocket.Conn, lastMod time.Time) {
 		}
 	}
 }
-func serveWs(w http.ResponseWriter, r *http.Request) {
+func (h *WebSockerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		if _, ok := err.(websocket.HandshakeError); !ok {
@@ -218,34 +162,6 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var lastMod time.Time
-	if n, err := strconv.ParseInt(r.FormValue("lastMod"), 16, 64); err == nil {
-		lastMod = time.Unix(0, n)
-	}
-
-	go writer(ws, lastMod)
+	go h.writer(ws)
+	reader(ws)
 }
-
-const homeHTML = `<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>WebSocket Example</title>
-    </head>
-    <body>
-        <pre id="fileData">{{.Data}}</pre>
-        <script type="text/javascript">
-            (function() {
-                var data = document.getElementById("fileData");
-                var conn = new WebSocket("ws://{{.Host}}/ws?lastMod={{.LastMod}}");
-                conn.onclose = function(evt) {
-                    data.textContent = 'Connection closed';
-                }
-                conn.onmessage = function(evt) {
-                    console.log('file updated');
-                    data.textContent = evt.data;
-                }
-            })();
-        </script>
-    </body>
-</html>
-`

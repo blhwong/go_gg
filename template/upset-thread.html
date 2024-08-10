@@ -55,8 +55,7 @@
                     data.textContent = 'Connection closed';
                 }
                 conn.onmessage = function (evt) {
-                    console.log('file updated', evt);
-                    data.innerHTML = "<div>Hello world!</div>"
+                    data.innerHTML = evt.data
                 }
             })();
         </script>

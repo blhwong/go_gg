@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"gg/client/startgg"
 	"gg/data"
@@ -45,9 +46,9 @@ type ServiceInterface interface {
 	toDomainSet(node startgg.Node) domain.Set
 	getSetsFromAPI(slug string) *[]domain.Set
 	getUpsetThread(sets []domain.Set) *domain.UpsetThread
-	getUpsetThreadDB(slug, title string) *domain.UpsetThread
 	submitToSubreddit()
 	addSets(slug string, upsetThread *domain.UpsetThread)
+	GetUpsetThreadDB(slug, title string) *domain.UpsetThread
 	Process(slug, title, subreddit, file string) *domain.UpsetThread
 }
 
@@ -246,7 +247,7 @@ func (s *Service) getUpsetThread(sets []domain.Set) *domain.UpsetThread {
 	}
 }
 
-func (s *Service) getUpsetThreadDB(slug, title string) *domain.UpsetThread {
+func (s *Service) GetUpsetThreadDB(slug, title string) *domain.UpsetThread {
 	setMapping := s.dbService.GetSets(slug)
 	var winners, losers, notables, dqs, other []domain.UpsetThreadItem
 	for setId, set := range *setMapping {
@@ -315,28 +316,28 @@ func (s *Service) addSets(slug string, upsetThread *domain.UpsetThread) {
 }
 
 func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThread {
-	// var sets []domain.Set
+	var sets []domain.Set
 
-	// if file != "" {
-	// 	fmt.Println("Using file data", file)
-	// 	storedFile := s.file.ReadFile(file)
-	// 	var nodes []startgg.Node
-	// 	if err := json.Unmarshal(storedFile, &nodes); err != nil {
-	// 		panic(err)
-	// 	}
-	// 	for _, node := range nodes {
-	// 		sets = append(sets, s.toDomainSet(node))
-	// 	}
-	// } else {
-	// 	fmt.Println("Fetching data from startgg")
-	// 	sets = *s.getSetsFromAPI(slug)
-	// }
-	// sort.Slice(sets, func(i, j int) bool {
-	// 	return sets[i].UpsetFactor > sets[j].UpsetFactor
-	// })
-	// upsetThread := s.getUpsetThread(sets)
-	// s.addSets(slug, upsetThread)
-	savedUpsetThread := s.getUpsetThreadDB(slug, title)
+	if file != "" {
+		fmt.Println("Using file data", file)
+		storedFile := s.file.ReadFile(file)
+		var nodes []startgg.Node
+		if err := json.Unmarshal(storedFile, &nodes); err != nil {
+			panic(err)
+		}
+		for _, node := range nodes {
+			sets = append(sets, s.toDomainSet(node))
+		}
+	} else {
+		fmt.Println("Fetching data from startgg")
+		sets = *s.getSetsFromAPI(slug)
+	}
+	sort.Slice(sets, func(i, j int) bool {
+		return sets[i].UpsetFactor > sets[j].UpsetFactor
+	})
+	upsetThread := s.getUpsetThread(sets)
+	s.addSets(slug, upsetThread)
+	savedUpsetThread := s.GetUpsetThreadDB(slug, title)
 	// md := mapper.ToMarkdown(savedUpsetThread, slug)
 	// outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), title)
 	// s.file.WriteString(outputName, md)
