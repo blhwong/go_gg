@@ -14,7 +14,8 @@ type FakeHttpClient struct {
 func (client *FakeHttpClient) Do(*http.Request) (*http.Response, error) {
 	client.doMethodCalled = true
 	return &http.Response{
-		Body: io.NopCloser(bytes.NewBufferString("")),
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewBufferString("")),
 	}, nil
 }
 

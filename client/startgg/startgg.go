@@ -86,7 +86,6 @@ type EventResponse struct {
 }
 
 func (client *Client) GetEvent(slug string, page int) EventResponse {
-	log.Printf("Getting event. slug=%s page=%v\n", slug, page)
 	type filters struct {
 		State int `json:"state"`
 	}

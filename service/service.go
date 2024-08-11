@@ -151,7 +151,7 @@ func (s *Service) getSetsFromAPI(slug string) *[]domain.Set {
 			panic(res.Errors)
 		}
 		totalPages := res.Data.Event.Sets.PageInfo.TotalPages
-		log.Printf("page: %v totalPage: %v\n", page, totalPages)
+		log.Printf("Event received. slug=%s page=%v totalPage=%v\n", slug, page, totalPages)
 		if page > totalPages {
 			break
 		}

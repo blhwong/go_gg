@@ -3,10 +3,12 @@ package graphql
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"math"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -58,8 +60,7 @@ func (client *Client) query(query string, variables interface{}) ([]byte, error)
 	}
 
 	if resp.StatusCode != 200 {
-		log.Printf("StartGG returned a non-200 response. status_code=%d\n", resp.StatusCode)
-		return nil, err
+		return nil, errors.New("API returned a non-200 response. status_code=" + strconv.Itoa(resp.StatusCode))
 	}
 
 	return respBody, nil
@@ -77,7 +78,7 @@ func (client *Client) Query(query string, variables interface{}) ([]byte, error)
 
 		secRetry := math.Pow(2, float64(i))
 		delay := time.Duration(secRetry) * BASE_DELAY
-		log.Printf("Error: %s. Retrying %d of %d\n in %v seconds", err, i, MAX_RETRIES, delay.Seconds())
+		log.Printf("Error: %s. Retrying %d of %d\n in %v seconds", err, i+1, MAX_RETRIES, delay.Seconds())
 		time.Sleep(delay)
 	}
 
