@@ -13,7 +13,7 @@ Example:
 - Player A is projected for 100th place
 - Player B is projected for 1st place
 
-If Player A beats Player B, then that's a huge upset because Player B was expected to win the entire tournament.
+If Player A beats Player B, then that's a huge upset because Player B was projected to win the entire tournament.
 
 The lower the projected placement (seed) in which a player beats another with a higher seed, the larger the upset factor.
 
@@ -42,15 +42,39 @@ If you have the winner's and loser's seed numbers then finding the upset factor 
 - We care more about upset factors the further below 0 (red section in table). This means a player that's seeded much lower outperformed a player that's seeded higher. The largest upset factor is 19 which essentially means the player that was expected to win the whole tournament loses to a player that's expected to place last in the tournament
 - The upset factors further above 0 (green section in table) means the upset that could have potentially happened. This is important for determining the notable matches because it means that the player expected to win ended up winning and it came down to the final game.
 
-## Testing
+## Running the app
 
-```go
+Fill out env variables from `dotenv.dist`
+
+```
+START_GG_API_URL="https://api.start.gg/gql/alpha"
+START_GG_API_KEY=
+REDIS_URL=localhost:6379
+```
+
+You can obtain an api key by signing up at StartGG's developer portal
+
+Start redis
+
+```
+redis-server
+```
+
+Start app
+
+```
+go run main.go --slug tournament/supernova-2024/event/ultimate-1v1-singles --title "Supernova Ultimate Singles Upset Thread"
+```
+
+### Testing
+
+```
 go test ./...
 ```
 
 with coverage
 
-```go
+```
 go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 ```
