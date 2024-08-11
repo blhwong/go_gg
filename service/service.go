@@ -2,6 +2,7 @@ package service
 
 import (
 	"cmp"
+	"encoding/json"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
@@ -50,7 +51,7 @@ type ServiceInterface interface {
 	submitToSubreddit()
 	addSets(slug string, upsetThread *domain.UpsetThread)
 	GetUpsetThreadDB(slug, title string) *domain.UpsetThread
-	Process(slug, title, subreddit, file string) *domain.UpsetThread
+	Process(slug, title, subreddit, file, gameSlug string) *domain.UpsetThread
 }
 
 type Service struct {
@@ -337,11 +338,22 @@ func (s *Service) addSets(slug string, upsetThread *domain.UpsetThread) {
 	s.dbService.AddSets(slug, &setMapping)
 }
 
-func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThread {
+func (s *Service) Process(slug, title, subreddit, file, gameSlug string) *domain.UpsetThread {
 	var sets []domain.Set
-
-	log.Println("Fetching data from startgg")
-	sets = *s.getSetsFromAPI(slug)
+	if file != "" {
+		log.Println("Using file data", file)
+		storedFile := s.file.ReadFile(file)
+		var nodes []startgg.Node
+		if err := json.Unmarshal(storedFile, &nodes); err != nil {
+			log.Fatalf("Error while unmarshaling node. e=%s\n", err)
+		}
+		for _, node := range nodes {
+			sets = append(sets, s.toDomainSet(node, gameSlug))
+		}
+	} else {
+		log.Println("Fetching data from startgg")
+		sets = *s.getSetsFromAPI(slug)
+	}
 	sort.Slice(sets, func(i, j int) bool {
 		return sets[i].UpsetFactor > sets[j].UpsetFactor
 	})

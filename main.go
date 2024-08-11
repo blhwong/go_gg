@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"gg/client/graphql"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
@@ -56,7 +57,7 @@ func main() {
 
 	var service service.ServiceInterface = service.NewService(
 		data.NewRedisDBService(),
-		startgg.NewClient(os.Getenv("START_GG_API_URL"), os.Getenv("START_GG_API_KEY"), &http.Client{}),
+		startgg.NewClient(graphql.NewClient(os.Getenv("START_GG_API_URL"), os.Getenv("START_GG_API_KEY"), &http.Client{})),
 		&service.FileReaderWriter{},
 	)
 	indexHandler := IndexHandler{
@@ -107,7 +108,7 @@ func reader(ws *websocket.Conn) {
 
 func (h *WebSockerHandler) getUpsetThreadHTML() {
 	for {
-		upsetThread := h.service.Process(*slug, *title, *subreddit, *file)
+		upsetThread := h.service.Process(*slug, *title, *subreddit, *file, "")
 		htmlUpsetThread := mapper.ToHTML(upsetThread, "")
 		h.upsetThreadChan <- htmlUpsetThread
 	}

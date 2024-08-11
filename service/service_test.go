@@ -5,6 +5,7 @@ import (
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
+	"gg/mapper"
 	"log"
 	"os"
 	"slices"
@@ -45,31 +46,31 @@ func (f *FakeFileReaderWriter) WriteString(filename, data string) {
 var fakeStartGGClient startgg.ClientInterface = &FakeStartGGClient{}
 var fakeFileReaderWriter FileInterface = &FakeFileReaderWriter{}
 
+var service = NewService(
+	data.NewInMemoryDBService(),
+	fakeStartGGClient,
+	fakeFileReaderWriter,
+)
+
+var slug = "tournament/smash-factor-x/event/smash-bros-ultimate-singles"
+
 func TestServiceSetsFromFile(t *testing.T) {
-	service := NewService(
-		data.NewInMemoryDBService(),
-		fakeStartGGClient,
-		fakeFileReaderWriter,
-	)
 	service.Process(
-		"tournament/smash-factor-x/event/smash-bros-ultimate-singles",
+		slug,
 		"Smash Factor X Ultimate Singles Upset Thread",
 		"",
 		"data/startgg_data.json",
+		"game/ultimate",
 	)
 }
 
 func TestServiceSetsFromAPI(t *testing.T) {
-	service := NewService(
-		data.NewInMemoryDBService(),
-		fakeStartGGClient,
-		fakeFileReaderWriter,
-	)
 	service.Process(
-		"tournament/smash-factor-x/event/smash-bros-ultimate-singles",
+		slug,
 		"Smash Factor X Ultimate Singles Upset Thread",
 		"",
 		"",
+		"game/ultimate",
 	)
 }
 
@@ -105,4 +106,29 @@ func TestSort(t *testing.T) {
 			t.Errorf("Failed winners name. Expected %v, got %v", expected.WinnersName, winner.WinnersName)
 		}
 	}
+}
+
+func TestMarkdownMapper(t *testing.T) {
+	upsetThread := service.Process(
+		slug,
+		"Smash Factor X Ultimate Singles Upset Thread",
+		"",
+		"data/startgg_data.json",
+		"game/ultimate",
+	)
+
+	mapper.ToMarkdown(upsetThread, slug)
+
+}
+
+func TestHTMLMapper(t *testing.T) {
+	upsetThread := service.Process(
+		slug,
+		"Smash Factor X Ultimate Singles Upset Thread",
+		"",
+		"data/startgg_data.json",
+		"game/ultimate",
+	)
+
+	mapper.ToHTML(upsetThread, slug)
 }

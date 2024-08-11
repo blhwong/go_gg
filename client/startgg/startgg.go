@@ -171,11 +171,11 @@ func (client *Client) GetCharacters(slug string) CharactersResponse {
 	resp, _ := client.graphQLClient.Query(charactersQuery, variables{slug})
 	var charactersResponse CharactersResponse
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
-		log.Fatalf("Error while marshaling characters. e=%s\n", err)
+		log.Fatalf("Error while unmarshaling characters. e=%s\n", err)
 	}
 	return charactersResponse
 }
 
-func NewClient(url, apiToken string, httpClient graphql.HttpClientInterface) *Client {
-	return &Client{graphQLClient: graphql.NewClient(url, apiToken, httpClient)}
+func NewClient(graphQLClient graphql.ClientInterface) *Client {
+	return &Client{graphQLClient: graphQLClient}
 }
