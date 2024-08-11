@@ -2,7 +2,7 @@ package startgg
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"gg/client/graphql"
 	"log"
 	"math"
@@ -13,6 +13,8 @@ const (
 	MAX_RETRIES = 10
 	BASE_DELAY  = 1 * time.Second
 )
+
+var ErrorGreaterthan10KEntry = errors.New("cannot query more than 10,000th entry")
 
 type ClientInterface interface {
 	GetEvent(slug string, page int) (*EventResponse, error)
@@ -93,7 +95,7 @@ type EventResponse struct {
 	} `json:"errors"`
 }
 
-func (client *Client) getEvent(slug string, page int) (*EventResponse, error) {
+func (client *Client) getEvent(slug string, page int) (*EventResponse, error, bool) {
 	type filters struct {
 		State int `json:"state"`
 	}
@@ -105,25 +107,29 @@ func (client *Client) getEvent(slug string, page int) (*EventResponse, error) {
 	}
 	resp, err := client.graphQLClient.Query(eventsQuery, variables{slug, page, filters{3}, "RECENT"})
 	if err != nil {
-		return nil, err
+		return nil, err, true
 	}
 	var eventResponse EventResponse
 	if err := json.Unmarshal(resp, &eventResponse); err != nil {
 		log.Fatalf("Error while unmarshaling event. e=%s\n", err)
 	}
 	if eventResponse.Errors != nil {
-		return &eventResponse, fmt.Errorf("error in event response. e=%s", eventResponse.Errors)
+		if eventResponse.Errors[0].Message == "Cannot query more than the 10,000th entry" {
+			return &eventResponse, ErrorGreaterthan10KEntry, false
+		}
+		return &eventResponse, errors.New(eventResponse.Errors[0].Message), true
 	}
-	return &eventResponse, nil
+	return &eventResponse, nil, false
 }
 
 func (client *Client) GetEvent(slug string, page int) (*EventResponse, error) {
 	var eventResponse *EventResponse
 	var err error
+	var retryable bool
 
 	for i := 0; i < MAX_RETRIES; i++ {
-		eventResponse, err = client.getEvent(slug, page)
-		if err == nil {
+		eventResponse, err, retryable = client.getEvent(slug, page)
+		if err == nil || !retryable {
 			break
 		}
 

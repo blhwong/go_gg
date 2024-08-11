@@ -147,6 +147,10 @@ func (s *Service) getSetsFromAPI(slug string) *[]domain.Set {
 	for {
 		time.Sleep(800 * time.Millisecond)
 		res, err := s.startGGClient.GetEvent(slug, page)
+		if err == startgg.ErrorGreaterthan10KEntry {
+			log.Println("Finishing because cannot query more than 10,000th entry.")
+			break
+		}
 		if err != nil {
 			log.Fatalf("Something went wrong getting event. e=%s\n", err)
 		}
