@@ -2,7 +2,6 @@ package service
 
 import (
 	"cmp"
-	"encoding/json"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
@@ -45,7 +44,7 @@ func (f *FileReaderWriter) WriteString(fileName, data string) {
 }
 
 type ServiceInterface interface {
-	toDomainSet(node startgg.Node) domain.Set
+	toDomainSet(node startgg.Node, slug string) domain.Set
 	getSetsFromAPI(slug string) *[]domain.Set
 	getUpsetThread(sets []domain.Set) *domain.UpsetThread
 	submitToSubreddit()
@@ -70,37 +69,37 @@ func toDomainEntrant(entrant startgg.Entrant) domain.Entrant {
 	}
 }
 
-func (s *Service) getCharacterName(key int) string {
-	if !s.dbService.IsCharactersLoaded() {
-		res := s.startGGClient.GetCharacters()
-		s.dbService.AddCharacters(res.Data.VideoGame.Characters)
-		s.dbService.SetIsCharactersLoaded()
+func (s *Service) getCharacterName(key int, slug string) string {
+	if !s.dbService.IsCharactersLoaded(slug) {
+		res := s.startGGClient.GetCharacters(slug)
+		s.dbService.AddCharacters(res.Data.VideoGame.Characters, slug)
+		s.dbService.SetIsCharactersLoaded(slug)
 	}
-	return s.dbService.GetCharacterName(key)
+	return s.dbService.GetCharacterName(key, slug)
 }
 
-func (s *Service) toDomainCharacter(selectionType string, value int) *domain.Character {
+func (s *Service) toDomainCharacter(selectionType string, value int, slug string) *domain.Character {
 	if selectionType != "CHARACTER" {
 		return nil
 	}
 	return &domain.Character{
 		Value: value,
-		Name:  s.getCharacterName(value),
+		Name:  s.getCharacterName(value, slug),
 	}
 }
 
-func (s *Service) toDomainSelection(selection startgg.Selection) domain.Selection {
+func (s *Service) toDomainSelection(selection startgg.Selection, slug string) domain.Selection {
 	return domain.Selection{
 		Entrant:   toDomainEntrant(selection.Entrant),
-		Character: s.toDomainCharacter(selection.SelectionType, selection.SelectionValue),
+		Character: s.toDomainCharacter(selection.SelectionType, selection.SelectionValue, slug),
 	}
 }
 
-func (s *Service) toDomainGame(game startgg.Game) domain.Game {
+func (s *Service) toDomainGame(game startgg.Game, slug string) domain.Game {
 	var selections []domain.Selection
 	if game.Selections != nil {
 		for _, selection := range game.Selections {
-			selections = append(selections, s.toDomainSelection(selection))
+			selections = append(selections, s.toDomainSelection(selection, slug))
 		}
 	}
 	return domain.Game{
@@ -110,7 +109,7 @@ func (s *Service) toDomainGame(game startgg.Game) domain.Game {
 	}
 }
 
-func (s *Service) toDomainSet(node startgg.Node) domain.Set {
+func (s *Service) toDomainSet(node startgg.Node, slug string) domain.Set {
 	entrants := make([]domain.Entrant, 0)
 	for _, slot := range node.Slots {
 		entrants = append(entrants, toDomainEntrant(slot.Entrant))
@@ -124,7 +123,7 @@ func (s *Service) toDomainSet(node startgg.Node) domain.Set {
 	}
 	if node.Games != nil {
 		for _, game := range node.Games {
-			games = append(games, s.toDomainGame(game))
+			games = append(games, s.toDomainGame(game, slug))
 		}
 	}
 	return *domain.NewSet(
@@ -164,7 +163,7 @@ func (s *Service) getSetsFromAPI(slug string) *[]domain.Set {
 		}
 		page++
 		for _, node := range res.Data.Event.Sets.Nodes {
-			sets = append(sets, s.toDomainSet(node))
+			sets = append(sets, s.toDomainSet(node, res.Data.Event.Videogame.Slug))
 		}
 	}
 	return &sets
@@ -341,20 +340,8 @@ func (s *Service) addSets(slug string, upsetThread *domain.UpsetThread) {
 func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThread {
 	var sets []domain.Set
 
-	if file != "" {
-		log.Println("Using file data", file)
-		storedFile := s.file.ReadFile(file)
-		var nodes []startgg.Node
-		if err := json.Unmarshal(storedFile, &nodes); err != nil {
-			log.Fatalf("Error while unmarshaling node. e=%s\n", err)
-		}
-		for _, node := range nodes {
-			sets = append(sets, s.toDomainSet(node))
-		}
-	} else {
-		log.Println("Fetching data from startgg")
-		sets = *s.getSetsFromAPI(slug)
-	}
+	log.Println("Fetching data from startgg")
+	sets = *s.getSetsFromAPI(slug)
 	sort.Slice(sets, func(i, j int) bool {
 		return sets[i].UpsetFactor > sets[j].UpsetFactor
 	})

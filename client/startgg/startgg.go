@@ -18,7 +18,7 @@ var ErrorGreaterthan10KEntry = errors.New("cannot query more than 10,000th entry
 
 type ClientInterface interface {
 	GetEvent(slug string, page int) (*EventResponse, error)
-	GetCharacters() CharactersResponse
+	GetCharacters(slug string) CharactersResponse
 }
 
 type Client struct {
@@ -77,7 +77,10 @@ type EventResponse struct {
 			Id        int    `json:"id"`
 			Slug      string `json:"slug"`
 			UpdatedAt int    `json:"updatedAt"`
-			Sets      struct {
+			Videogame struct {
+				Slug string `json:"slug"`
+			} `json:"videogame"`
+			Sets struct {
 				PageInfo struct {
 					Total      int    `json:"total"`
 					TotalPages int    `json:"totalPages"`
@@ -160,12 +163,12 @@ type CharactersResponse struct {
 	} `json:"data"`
 }
 
-func (client *Client) GetCharacters() CharactersResponse {
+func (client *Client) GetCharacters(slug string) CharactersResponse {
 	log.Println("Getting characters")
 	type variables struct {
 		Slug string `json:"slug"`
 	}
-	resp, _ := client.graphQLClient.Query(charactersQuery, variables{"game/street-fighter-6"})
+	resp, _ := client.graphQLClient.Query(charactersQuery, variables{slug})
 	var charactersResponse CharactersResponse
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
 		log.Fatalf("Error while marshaling characters. e=%s\n", err)

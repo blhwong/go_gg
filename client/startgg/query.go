@@ -11,6 +11,9 @@ var eventsQuery string = `
 			id
 			slug
 			updatedAt
+			videogame {
+				slug
+			}
 			sets(filters: $filters page: $page sortType: $sortType) {
 				pageInfo {
 					total

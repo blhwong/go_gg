@@ -13,7 +13,7 @@ import (
 
 type FakeStartGGClient struct{}
 
-func (f *FakeStartGGClient) GetCharacters() startgg.CharactersResponse {
+func (f *FakeStartGGClient) GetCharacters(slug string) startgg.CharactersResponse {
 	data, err := os.ReadFile("../data/characters.json")
 	if err != nil {
 		log.Fatalf("Error while reading file. e=%s\n", err)

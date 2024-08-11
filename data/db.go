@@ -7,10 +7,10 @@ import (
 )
 
 type DBServiceInterface interface {
-	IsCharactersLoaded() bool
-	GetCharacterName(key int) string
-	AddCharacters(characters []startgg.Character)
-	SetIsCharactersLoaded()
+	IsCharactersLoaded(slug string) bool
+	GetCharacterName(key int, slug string) string
+	AddCharacters(characters []startgg.Character, slug string)
+	SetIsCharactersLoaded(slug string)
 	AddSets(slug string, setMapping *map[string]string)
 	GetSets(slug string) *map[string]string
 }
@@ -23,22 +23,22 @@ func NewInMemoryDBService() *InMemoryDBService {
 	return &InMemoryDBService{storage: make(map[string]string, 0)}
 }
 
-func (db *InMemoryDBService) IsCharactersLoaded() bool {
-	return db.storage["is_character_loaded"] == "1"
+func (db *InMemoryDBService) IsCharactersLoaded(slug string) bool {
+	return db.storage[slug+"_is_character_loaded"] == "1"
 }
 
-func (db *InMemoryDBService) GetCharacterName(key int) string {
-	return db.storage[strconv.Itoa(key)]
+func (db *InMemoryDBService) GetCharacterName(key int, slug string) string {
+	return db.storage[slug+"_"+strconv.Itoa(key)]
 }
 
-func (db *InMemoryDBService) AddCharacters(characters []startgg.Character) {
+func (db *InMemoryDBService) AddCharacters(characters []startgg.Character, slug string) {
 	for _, character := range characters {
-		db.storage[strconv.Itoa(character.Id)] = character.Name
+		db.storage[slug+"_"+strconv.Itoa(character.Id)] = character.Name
 	}
 }
 
-func (db *InMemoryDBService) SetIsCharactersLoaded() {
-	db.storage["is_character_loaded"] = "1"
+func (db *InMemoryDBService) SetIsCharactersLoaded(slug string) {
+	db.storage[slug+"_is_character_loaded"] = "1"
 }
 
 func (db *InMemoryDBService) AddSets(slug string, setMapping *map[string]string) {

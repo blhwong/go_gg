@@ -22,8 +22,8 @@ func NewRedisDBService() *RedisDBService {
 	}
 }
 
-func (r *RedisDBService) IsCharactersLoaded() bool {
-	val, err := r.rdb.Get(r.ctx, "is_character_loaded").Result()
+func (r *RedisDBService) IsCharactersLoaded(slug string) bool {
+	val, err := r.rdb.HGet(r.ctx, "characters:"+slug, "is_character_loaded").Result()
 	if err == redis.Nil {
 		return false
 	}
@@ -33,25 +33,25 @@ func (r *RedisDBService) IsCharactersLoaded() bool {
 	return val == "1"
 }
 
-func (r *RedisDBService) GetCharacterName(key int) string {
-	val, err := r.rdb.Get(r.ctx, "character:"+strconv.Itoa(key)).Result()
+func (r *RedisDBService) GetCharacterName(key int, slug string) string {
+	val, err := r.rdb.HGet(r.ctx, "characters:"+slug, "character:"+strconv.Itoa(key)).Result()
 	if err != nil {
 		log.Fatalf("Error while getting character name. e=%s\n", err)
 	}
 	return val
 }
 
-func (r *RedisDBService) AddCharacters(characters []startgg.Character) {
+func (r *RedisDBService) AddCharacters(characters []startgg.Character, slug string) {
 	for _, character := range characters {
-		err := r.rdb.Set(r.ctx, "character:"+strconv.Itoa(character.Id), character.Name, 0).Err()
+		err := r.rdb.HSet(r.ctx, "characters:"+slug, "character:"+strconv.Itoa(character.Id), character.Name).Err()
 		if err != nil {
 			log.Fatalf("Error while adding character. e=%s\n", err)
 		}
 	}
 }
 
-func (r *RedisDBService) SetIsCharactersLoaded() {
-	err := r.rdb.Set(r.ctx, "is_character_loaded", "1", 0).Err()
+func (r *RedisDBService) SetIsCharactersLoaded(slug string) {
+	err := r.rdb.HSet(r.ctx, "characters:"+slug, "is_character_loaded", "1").Err()
 	if err != nil {
 		log.Fatalf("Error while setting character is loaded. e=%s\n", err)
 	}
