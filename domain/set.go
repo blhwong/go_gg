@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"log"
 	"slices"
 	"sort"
 	"strconv"
@@ -113,12 +114,12 @@ func initScore(games *[]Game, displayScore string, winner, loser Entrant, totalG
 	if len(scoreFromDisplayScore) > 0 && scoresFromGames != nil && len(*scoresFromGames) > 0 {
 		numFromDisplayScore, err := strconv.Atoi(string(scoreFromDisplayScore[0]))
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error while converting display score to int. e=%s\n", err)
 		}
 		gameScore := *scoresFromGames
 		numFromGameScore, err := strconv.Atoi(string(gameScore[0]))
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error while converting game score to int. e=%s\n", err)
 		}
 		if numFromDisplayScore > numFromGameScore {
 			return &scoreFromDisplayScore

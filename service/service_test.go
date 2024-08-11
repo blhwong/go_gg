@@ -5,6 +5,7 @@ import (
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
+	"log"
 	"os"
 	"slices"
 	"testing"
@@ -15,17 +16,17 @@ type FakeStartGGClient struct{}
 func (f *FakeStartGGClient) GetCharacters() startgg.CharactersResponse {
 	data, err := os.ReadFile("../data/characters.json")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while reading file. e=%s\n", err)
 	}
 	var charactersResponse startgg.CharactersResponse
 	if err := json.Unmarshal(data, &charactersResponse); err != nil {
-		panic(err)
+		log.Fatalf("Error while unmarshaling characters. e=%s\n", err)
 	}
 	return charactersResponse
 }
 
-func (f *FakeStartGGClient) GetEvent(slug string, page int) startgg.EventResponse {
-	return startgg.EventResponse{}
+func (f *FakeStartGGClient) GetEvent(slug string, page int) (*startgg.EventResponse, error) {
+	return &startgg.EventResponse{}, nil
 }
 
 type FakeFileReaderWriter struct{}
@@ -33,7 +34,7 @@ type FakeFileReaderWriter struct{}
 func (f *FakeFileReaderWriter) ReadFile(fileName string) []byte {
 	data, err := os.ReadFile("../data/test_data.json")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while reading test_data. e=%s\n", err)
 	}
 	return data
 }

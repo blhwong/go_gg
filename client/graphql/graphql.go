@@ -3,13 +3,10 @@ package graphql
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"log"
-	"math"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 type ClientInterface interface {
@@ -31,61 +28,38 @@ type Payload struct {
 	Variables interface{} `json:"variables"`
 }
 
-const (
-	MAX_RETRIES = 10
-	BASE_DELAY  = 1 * time.Second
-)
-
-func (client *Client) query(query string, variables interface{}) ([]byte, error) {
+func (client *Client) Query(query string, variables interface{}) ([]byte, error) {
 	payload := Payload{query, variables}
 	body, err := json.Marshal(payload)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while marshaling. e=%s\n", err)
 	}
 	req, err := http.NewRequest("POST", client.url, bytes.NewBuffer(body))
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while creating new request. e=%s\n", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+client.apiToken)
 	resp, err := client.httpClient.Do(req)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error on http client. e=%s\n", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error on io read. e=%s\n", err)
 	}
 
-	if resp.StatusCode != 200 {
-		return nil, errors.New("API returned a non-200 response. status_code=" + strconv.Itoa(resp.StatusCode))
+	if resp.StatusCode >= 500 {
+		return nil, fmt.Errorf("api returned a status >= 500. status_code=%d", resp.StatusCode)
+	}
+
+	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+		log.Fatalf("API returned a status between [400, 500). status_code=%d\n", resp.StatusCode)
 	}
 
 	return respBody, nil
-}
-
-func (client *Client) Query(query string, variables interface{}) ([]byte, error) {
-	var body []byte
-	var err error
-
-	for i := 0; i < MAX_RETRIES; i++ {
-		body, err = client.query(query, variables)
-		if err == nil {
-			break
-		}
-
-		secRetry := math.Pow(2, float64(i))
-		delay := time.Duration(secRetry) * BASE_DELAY
-		log.Printf("Error: %s. Retrying %d of %d\n in %v seconds", err, i+1, MAX_RETRIES, delay.Seconds())
-		time.Sleep(delay)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
 }
 
 func NewClient(url, apiToken string, httpClient HttpClientInterface) *Client {

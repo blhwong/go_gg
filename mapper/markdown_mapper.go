@@ -3,6 +3,7 @@ package mapper
 import (
 	"fmt"
 	"gg/domain"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -59,7 +60,7 @@ func ToMarkdown(upsetThread *domain.UpsetThread, slug string) string {
 	dqs := strings.Join(dqItems, "  \n")
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while loading location. e=%s\n", err)
 	}
 	currentTime := time.Now().In(location)
 	t := currentTime.Format("01/02/2006 03:04pm MST")

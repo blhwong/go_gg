@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"gg/domain"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -60,7 +61,7 @@ func ToHTML(upsetThread *domain.UpsetThread, host string) *domain.UpsetThreadHTM
 	}
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while loading location. e=%s\n", err)
 	}
 	currentTime := time.Now().In(location)
 	lastUpdatedAt := currentTime.Format("01/02/2006 03:04pm MST")

@@ -3,13 +3,14 @@ package mapper
 import (
 	"encoding/json"
 	"gg/domain"
+	"log"
 )
 
 func DBSetToUpsetThreadItem(setId, set string) *domain.UpsetThreadItem {
 	arr := []interface{}{}
 	err := json.Unmarshal([]byte(set), &arr)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while unmarshaling to upset thread item. e=%s\n", err)
 	}
 	score := arr[3].(string)
 	return &domain.UpsetThreadItem{
@@ -44,7 +45,7 @@ func UpsetThreadItemToDBSet(item domain.UpsetThreadItem) string {
 		item.Category,
 	})
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while marshaling to db set. e=%s\n", err)
 	}
 	return string(res)
 }

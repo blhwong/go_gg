@@ -2,12 +2,20 @@ package startgg
 
 import (
 	"encoding/json"
+	"fmt"
 	"gg/client/graphql"
 	"log"
+	"math"
+	"time"
+)
+
+const (
+	MAX_RETRIES = 10
+	BASE_DELAY  = 1 * time.Second
 )
 
 type ClientInterface interface {
-	GetEvent(slug string, page int) EventResponse
+	GetEvent(slug string, page int) (*EventResponse, error)
 	GetCharacters() CharactersResponse
 }
 
@@ -85,7 +93,7 @@ type EventResponse struct {
 	} `json:"errors"`
 }
 
-func (client *Client) GetEvent(slug string, page int) EventResponse {
+func (client *Client) getEvent(slug string, page int) (*EventResponse, error) {
 	type filters struct {
 		State int `json:"state"`
 	}
@@ -95,12 +103,40 @@ func (client *Client) GetEvent(slug string, page int) EventResponse {
 		Filters  filters `json:"filters"`
 		SortType string  `json:"sortType"`
 	}
-	resp, _ := client.graphQLClient.Query(eventsQuery, variables{slug, page, filters{3}, "RECENT"})
+	resp, err := client.graphQLClient.Query(eventsQuery, variables{slug, page, filters{3}, "RECENT"})
+	if err != nil {
+		return nil, err
+	}
 	var eventResponse EventResponse
 	if err := json.Unmarshal(resp, &eventResponse); err != nil {
-		panic(err)
+		log.Fatalf("Error while unmarshaling event. e=%s\n", err)
 	}
-	return eventResponse
+	if eventResponse.Errors != nil {
+		return &eventResponse, fmt.Errorf("error in event response. e=%s", eventResponse.Errors)
+	}
+	return &eventResponse, nil
+}
+
+func (client *Client) GetEvent(slug string, page int) (*EventResponse, error) {
+	var eventResponse *EventResponse
+	var err error
+
+	for i := 0; i < MAX_RETRIES; i++ {
+		eventResponse, err = client.getEvent(slug, page)
+		if err == nil {
+			break
+		}
+
+		secRetry := math.Pow(2, float64(i))
+		delay := time.Duration(secRetry) * BASE_DELAY
+		log.Printf("Error: %s. Retrying %d of %d\n in %v seconds", err, i+1, MAX_RETRIES, delay.Seconds())
+		time.Sleep(delay)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return eventResponse, nil
 }
 
 type Character struct {
@@ -123,10 +159,10 @@ func (client *Client) GetCharacters() CharactersResponse {
 	type variables struct {
 		Slug string `json:"slug"`
 	}
-	resp, _ := client.graphQLClient.Query(charactersQuery, variables{"game/ultimate"})
+	resp, _ := client.graphQLClient.Query(charactersQuery, variables{"game/street-fighter-6"})
 	var charactersResponse CharactersResponse
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
-		panic(err)
+		log.Fatalf("Error while marshaling characters. e=%s\n", err)
 	}
 	return charactersResponse
 }

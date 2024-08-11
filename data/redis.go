@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"gg/client/startgg"
+	"log"
 	"os"
 	"strconv"
 
@@ -27,7 +28,7 @@ func (r *RedisDBService) IsCharactersLoaded() bool {
 		return false
 	}
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error on getting character is loaded. e=%s\n", err)
 	}
 	return val == "1"
 }
@@ -35,7 +36,7 @@ func (r *RedisDBService) IsCharactersLoaded() bool {
 func (r *RedisDBService) GetCharacterName(key int) string {
 	val, err := r.rdb.Get(r.ctx, "character:"+strconv.Itoa(key)).Result()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while getting character name. e=%s\n", err)
 	}
 	return val
 }
@@ -44,7 +45,7 @@ func (r *RedisDBService) AddCharacters(characters []startgg.Character) {
 	for _, character := range characters {
 		err := r.rdb.Set(r.ctx, "character:"+strconv.Itoa(character.Id), character.Name, 0).Err()
 		if err != nil {
-			panic(err)
+			log.Fatalf("Error while adding character. e=%s\n", err)
 		}
 	}
 }
@@ -52,7 +53,7 @@ func (r *RedisDBService) AddCharacters(characters []startgg.Character) {
 func (r *RedisDBService) SetIsCharactersLoaded() {
 	err := r.rdb.Set(r.ctx, "is_character_loaded", "1", 0).Err()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while setting character is loaded. e=%s\n", err)
 	}
 }
 
@@ -65,7 +66,7 @@ func (r *RedisDBService) AddSets(slug string, setMapping *map[string]string) {
 func (r *RedisDBService) AddSet(slug string, setId string, set string) {
 	err := r.rdb.HSet(r.ctx, "event:"+slug+"_sets", setId, set).Err()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while adding set. e=%s\n", err)
 	}
 }
 

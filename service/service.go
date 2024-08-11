@@ -26,7 +26,7 @@ type FileReaderWriter struct{}
 func (f *FileReaderWriter) ReadFile(fileName string) []byte {
 	file, err := os.ReadFile(fileName)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while reading file. e=%s\n", err)
 	}
 	return file
 }
@@ -34,12 +34,12 @@ func (f *FileReaderWriter) ReadFile(fileName string) []byte {
 func (f *FileReaderWriter) WriteString(fileName, data string) {
 	outputFile, err := os.Create(fileName)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while creating file. e=%s\n", err)
 	}
 	defer outputFile.Close()
 	l, err := outputFile.WriteString(data)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error while writing to file. e=%s\n", err)
 	}
 	log.Printf("%v bytes written\n", l)
 }
@@ -146,9 +146,12 @@ func (s *Service) getSetsFromAPI(slug string) *[]domain.Set {
 	var sets []domain.Set
 	for {
 		time.Sleep(800 * time.Millisecond)
-		res := s.startGGClient.GetEvent(slug, page)
+		res, err := s.startGGClient.GetEvent(slug, page)
+		if err != nil {
+			log.Fatalf("Something went wrong getting event. e=%s\n", err)
+		}
 		if res.Errors != nil {
-			panic(res.Errors)
+			log.Fatalf("Response contains errors. e=%s\n", res.Errors)
 		}
 		totalPages := res.Data.Event.Sets.PageInfo.TotalPages
 		log.Printf("Event received. slug=%s page=%v totalPage=%v\n", slug, page, totalPages)
@@ -339,7 +342,7 @@ func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThre
 		storedFile := s.file.ReadFile(file)
 		var nodes []startgg.Node
 		if err := json.Unmarshal(storedFile, &nodes); err != nil {
-			panic(err)
+			log.Fatalf("Error while unmarshaling node. e=%s\n", err)
 		}
 		for _, node := range nodes {
 			sets = append(sets, s.toDomainSet(node))
