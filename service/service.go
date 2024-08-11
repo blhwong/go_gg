@@ -4,7 +4,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"gg/client/startgg"
-	"gg/data"
+	"gg/db"
 	"gg/domain"
 	"gg/mapper"
 	"log"
@@ -55,7 +55,7 @@ type ServiceInterface interface {
 }
 
 type Service struct {
-	dbService     data.DBServiceInterface
+	dbService     db.DBServiceInterface
 	startGGClient startgg.ClientInterface
 	file          FileInterface
 }
@@ -363,7 +363,7 @@ func (s *Service) Process(slug, title, subreddit, file, gameSlug string) *domain
 	return savedUpsetThread
 }
 
-func NewService(dbService data.DBServiceInterface, startGGClient startgg.ClientInterface, file FileInterface) *Service {
+func NewService(dbService db.DBServiceInterface, startGGClient startgg.ClientInterface, file FileInterface) *Service {
 	return &Service{
 		dbService:     dbService,
 		startGGClient: startGGClient,

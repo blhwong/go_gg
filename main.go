@@ -5,7 +5,7 @@ import (
 	"flag"
 	"gg/client/graphql"
 	"gg/client/startgg"
-	"gg/data"
+	"gg/db"
 	"gg/domain"
 	"gg/mapper"
 	"gg/service"
@@ -56,7 +56,7 @@ func main() {
 	flag.Parse()
 
 	var service service.ServiceInterface = service.NewService(
-		data.NewRedisDBService(),
+		db.NewRedisDBService(),
 		startgg.NewClient(graphql.NewClient(os.Getenv("START_GG_API_URL"), os.Getenv("START_GG_API_KEY"), &http.Client{})),
 		&service.FileReaderWriter{},
 	)

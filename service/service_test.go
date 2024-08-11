@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"gg/client/startgg"
-	"gg/data"
+	"gg/db"
 	"gg/domain"
 	"gg/mapper"
 	"log"
@@ -15,7 +15,7 @@ import (
 type FakeStartGGClient struct{}
 
 func (f *FakeStartGGClient) GetCharacters(slug string) startgg.CharactersResponse {
-	data, err := os.ReadFile("../data/characters.json")
+	data, err := os.ReadFile("../db/characters.json")
 	if err != nil {
 		log.Fatalf("Error while reading file. e=%s\n", err)
 	}
@@ -33,7 +33,7 @@ func (f *FakeStartGGClient) GetEvent(slug string, page int) (*startgg.EventRespo
 type FakeFileReaderWriter struct{}
 
 func (f *FakeFileReaderWriter) ReadFile(fileName string) []byte {
-	data, err := os.ReadFile("../data/test_data.json")
+	data, err := os.ReadFile("../db/test_data.json")
 	if err != nil {
 		log.Fatalf("Error while reading test_data. e=%s\n", err)
 	}
@@ -47,7 +47,7 @@ var fakeStartGGClient startgg.ClientInterface = &FakeStartGGClient{}
 var fakeFileReaderWriter FileInterface = &FakeFileReaderWriter{}
 
 var service = NewService(
-	data.NewInMemoryDBService(),
+	db.NewInMemoryDBService(),
 	fakeStartGGClient,
 	fakeFileReaderWriter,
 )
@@ -59,7 +59,7 @@ func TestServiceSetsFromFile(t *testing.T) {
 		slug,
 		"Smash Factor X Ultimate Singles Upset Thread",
 		"",
-		"data/startgg_data.json",
+		"db/startgg_data.json",
 		"game/ultimate",
 	)
 }
@@ -113,7 +113,7 @@ func TestMarkdownMapper(t *testing.T) {
 		slug,
 		"Smash Factor X Ultimate Singles Upset Thread",
 		"",
-		"data/startgg_data.json",
+		"db/startgg_data.json",
 		"game/ultimate",
 	)
 
@@ -126,7 +126,7 @@ func TestHTMLMapper(t *testing.T) {
 		slug,
 		"Smash Factor X Ultimate Singles Upset Thread",
 		"",
-		"data/startgg_data.json",
+		"db/startgg_data.json",
 		"game/ultimate",
 	)
 
