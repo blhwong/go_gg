@@ -4,7 +4,6 @@ import (
 	"context"
 	"gg/client/startgg"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/redis/go-redis/v9"
@@ -15,10 +14,10 @@ type RedisDBService struct {
 	ctx context.Context
 }
 
-func NewRedisDBService() *RedisDBService {
+func NewRedisDBService(rdb redis.Client, ctx context.Context) *RedisDBService {
 	return &RedisDBService{
-		rdb: *redis.NewClient(&redis.Options{Addr: os.Getenv("localhost:6379")}),
-		ctx: context.Background(),
+		rdb: rdb,
+		ctx: ctx,
 	}
 }
 

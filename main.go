@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"flag"
 	"gg/client/graphql"
 	"gg/client/startgg"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -56,7 +58,7 @@ func main() {
 	flag.Parse()
 
 	var service service.ServiceInterface = service.NewService(
-		db.NewRedisDBService(),
+		db.NewRedisDBService(*redis.NewClient(&redis.Options{Addr: os.Getenv("REDIS_URL")}), context.Background()),
 		startgg.NewClient(graphql.NewClient(os.Getenv("START_GG_API_URL"), os.Getenv("START_GG_API_KEY"), &http.Client{})),
 		&service.FileReaderWriter{},
 	)
