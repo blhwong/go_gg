@@ -20,18 +20,18 @@ type UpsetThread struct {
 	Other    []UpsetThreadItem
 }
 
-type UpsetThreadItemHTML struct {
+type UpsetThreadItemDisplay struct {
 	Content string
 	Bold    bool
 }
 
-type UpsetThreadHTML struct {
+type UpsetThreadDisplay struct {
 	Host          string
 	Title         string
 	Slug          string
 	LastUpdatedAt string
-	Winners       []*UpsetThreadItemHTML
-	Losers        []*UpsetThreadItemHTML
-	Notables      []*UpsetThreadItemHTML
-	DQs           []*UpsetThreadItemHTML
+	Winners       []*UpsetThreadItemDisplay
+	Losers        []*UpsetThreadItemDisplay
+	Notables      []*UpsetThreadItemDisplay
+	DQs           []*UpsetThreadItemDisplay
 }

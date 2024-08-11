@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"fmt"
 	"gg/domain"
 	"log"
 	"strconv"
@@ -9,7 +8,7 @@ import (
 	"time"
 )
 
-func toLineItem(item domain.UpsetThreadItem) string {
+func toLineItemDisplay(item domain.UpsetThreadItem) *domain.UpsetThreadItemDisplay {
 	words := []string{item.WinnersName}
 	if len(item.WinnersCharacters) > 0 {
 		words = append(words, "("+item.WinnersCharacters+")")
@@ -29,55 +28,51 @@ func toLineItem(item domain.UpsetThreadItem) string {
 	if item.UpsetFactor > 0 {
 		words = append(words, "- Upset Factor "+strconv.Itoa(item.UpsetFactor))
 	}
-	text := strings.Join(words, " ")
+	content := strings.Join(words, " ")
+	var bold bool
 	if item.UpsetFactor >= 4 {
-		return "**" + text + "**"
+		bold = true
 	}
-	return text
+	return &domain.UpsetThreadItemDisplay{
+		Content: content,
+		Bold:    bold,
+	}
 }
 
-func toDQLineItem(item domain.UpsetThreadItem) string {
-	return item.LosersName
+func toDQLineItemDisplay(item domain.UpsetThreadItem) *domain.UpsetThreadItemDisplay {
+	return &domain.UpsetThreadItemDisplay{
+		Content: item.LosersName,
+	}
 }
 
-func ToMarkdown(upsetThread *domain.UpsetThread, slug string) string {
-	var winnersItems, losersItems, notablesItems, dqItems []string
+func ToDisplay(upsetThread *domain.UpsetThread, host string) *domain.UpsetThreadDisplay {
+	var winners, losers, notables, dqs []*domain.UpsetThreadItemDisplay
 	for _, s := range upsetThread.Winners {
-		winnersItems = append(winnersItems, toLineItem(s))
+		winners = append(winners, toLineItemDisplay(s))
 	}
 	for _, s := range upsetThread.Losers {
-		losersItems = append(losersItems, toLineItem(s))
+		losers = append(losers, toLineItemDisplay(s))
 	}
 	for _, s := range upsetThread.Notables {
-		notablesItems = append(notablesItems, toLineItem(s))
+		notables = append(notables, toLineItemDisplay(s))
 	}
 	for _, s := range upsetThread.DQs {
-		dqItems = append(dqItems, toDQLineItem(s))
+		dqs = append(dqs, toDQLineItemDisplay(s))
 	}
-	winners := strings.Join(winnersItems, "  \n")
-	losers := strings.Join(losersItems, "  \n")
-	notables := strings.Join(notablesItems, "  \n")
-	dqs := strings.Join(dqItems, "  \n")
 	location, err := time.LoadLocation("America/Los_Angeles")
 	if err != nil {
 		log.Fatalf("Error while loading location. e=%s\n", err)
 	}
 	currentTime := time.Now().In(location)
-	t := currentTime.Format("01/02/2006 03:04pm MST")
-	return fmt.Sprintf(`[Bracket](https;//start.gg/%s)
-
-# Winners
-%s
-
-# Losers
-%s
-
-# Notables
-%s
-
-# DQs
-%s
-
-*Last updated at: %s*
-`, slug, winners, losers, notables, dqs, t)
+	lastUpdatedAt := currentTime.Format("01/02/2006 03:04pm MST")
+	return &domain.UpsetThreadDisplay{
+		Host:          host,
+		Title:         upsetThread.Title,
+		Slug:          upsetThread.Slug,
+		LastUpdatedAt: lastUpdatedAt,
+		Winners:       winners,
+		Losers:        losers,
+		Notables:      notables,
+		DQs:           dqs,
+	}
 }

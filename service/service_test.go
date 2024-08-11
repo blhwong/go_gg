@@ -158,7 +158,7 @@ func TestSort(t *testing.T) {
 	}
 }
 
-func TestMarkdownMapper(t *testing.T) {
+func TestDisplayMapper(t *testing.T) {
 	upsetThread := service.Process(
 		slug,
 		"Smash Factor X Ultimate Singles Upset Thread",
@@ -167,18 +167,5 @@ func TestMarkdownMapper(t *testing.T) {
 		"game/ultimate",
 	)
 
-	mapper.ToMarkdown(upsetThread, slug)
-
-}
-
-func TestHTMLMapper(t *testing.T) {
-	upsetThread := service.Process(
-		slug,
-		"Smash Factor X Ultimate Singles Upset Thread",
-		"",
-		"db/startgg_data.json",
-		"game/ultimate",
-	)
-
-	mapper.ToHTML(upsetThread, slug)
+	mapper.ToDisplay(upsetThread, slug)
 }

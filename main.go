@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"flag"
+	"fmt"
 	"gg/client/graphql"
 	"gg/client/startgg"
 	"gg/db"
@@ -51,7 +52,7 @@ type IndexHandler struct {
 
 type WebSockerHandler struct {
 	service         service.ServiceInterface
-	upsetThreadChan chan *domain.UpsetThreadHTML
+	upsetThreadChan chan *domain.UpsetThreadDisplay
 }
 
 func main() {
@@ -68,16 +69,27 @@ func main() {
 
 	webSocketHandler := WebSockerHandler{
 		service:         service,
-		upsetThreadChan: make(chan *domain.UpsetThreadHTML),
+		upsetThreadChan: make(chan *domain.UpsetThreadDisplay),
 	}
 
-	go webSocketHandler.getUpsetThreadHTML()
+	go webSocketHandler.getUpsetThreadDisplay()
 
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.Handle("/", &indexHandler)
 	http.Handle("/ws", &webSocketHandler)
 	http.ListenAndServe(*addr, nil)
+}
+
+func writeMdFile(upsetThreadDisplay *domain.UpsetThreadDisplay) {
+	mdTemplate := template.Must(template.ParseFiles("template/markdown.tmpl"))
+	filename := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), *title)
+	outputFile, err := os.Create(filename)
+	if err != nil {
+		log.Fatalf("Error while creating file. e=%s\n", err)
+	}
+	defer outputFile.Close()
+	mdTemplate.Execute(outputFile, &upsetThreadDisplay)
 }
 
 func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -90,9 +102,10 @@ func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	upsetThread := h.service.GetUpsetThreadDB(*slug, *title)
-	htmlUpsetThread := mapper.ToHTML(upsetThread, r.Host)
+	upsetThreadDisplay := mapper.ToDisplay(upsetThread, r.Host)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	upsetThreadHTMLTemplate.Execute(w, &htmlUpsetThread)
+	upsetThreadHTMLTemplate.Execute(w, &upsetThreadDisplay)
+	writeMdFile(upsetThreadDisplay)
 }
 
 func reader(ws *websocket.Conn) {
@@ -108,11 +121,11 @@ func reader(ws *websocket.Conn) {
 	}
 }
 
-func (h *WebSockerHandler) getUpsetThreadHTML() {
+func (h *WebSockerHandler) getUpsetThreadDisplay() {
 	for {
 		upsetThread := h.service.Process(*slug, *title, *subreddit, *file, "")
-		htmlUpsetThread := mapper.ToHTML(upsetThread, "")
-		h.upsetThreadChan <- htmlUpsetThread
+		upsetThreadDisplay := mapper.ToDisplay(upsetThread, "")
+		h.upsetThreadChan <- upsetThreadDisplay
 	}
 }
 
@@ -126,12 +139,12 @@ func (h *WebSockerHandler) writer(ws *websocket.Conn) {
 	}()
 	for {
 		select {
-		case htmlUpsetThread := <-h.upsetThreadChan:
+		case upsetThreadDisplay := <-h.upsetThreadChan:
 			var p []byte
 			var err error
 
 			var buff bytes.Buffer
-			upsetThreadTemplate.Execute(&buff, htmlUpsetThread)
+			upsetThreadTemplate.Execute(&buff, upsetThreadDisplay)
 			p = buff.Bytes()
 
 			if err != nil {

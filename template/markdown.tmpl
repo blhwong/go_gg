@@ -1,0 +1,15 @@
+[Bracket](https://start.gg/{{.Slug}})
+*Last updated at: {{.LastUpdatedAt}}*
+
+# Winners
+
+{{range .Winners}}{{if .Bold}}**{{.Content}}**{{"  \n"}}{{else}}{{.Content}}{{"  \n"}}{{end}}{{end}}
+# Losers
+
+{{range .Losers}}{{if .Bold}}**{{.Content}}**{{"  \n"}}{{else}}{{.Content}}{{"  \n"}}{{end}}{{end}}
+# Notables
+
+{{range .Notables}}{{if .Bold}}**{{.Content}}**{{"  \n"}}{{else}}{{.Content}}{{"  \n"}}{{end}}{{end}}
+# DQs
+
+{{range .DQs}}{{.Content}}{{"  \n"}}{{end}}
