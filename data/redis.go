@@ -2,9 +2,9 @@ package data
 
 import (
 	"context"
-	"fmt"
 	"gg/client/startgg"
 	"os"
+	"strconv"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -33,7 +33,7 @@ func (r *RedisDBService) IsCharactersLoaded() bool {
 }
 
 func (r *RedisDBService) GetCharacterName(key int) string {
-	val, err := r.rdb.Get(r.ctx, fmt.Sprintf("character:%v", key)).Result()
+	val, err := r.rdb.Get(r.ctx, "character:"+strconv.Itoa(key)).Result()
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +42,7 @@ func (r *RedisDBService) GetCharacterName(key int) string {
 
 func (r *RedisDBService) AddCharacters(characters []startgg.Character) {
 	for _, character := range characters {
-		err := r.rdb.Set(r.ctx, fmt.Sprintf("character:%v", character.Id), character.Name, 0).Err()
+		err := r.rdb.Set(r.ctx, "character:"+strconv.Itoa(character.Id), character.Name, 0).Err()
 		if err != nil {
 			panic(err)
 		}
@@ -63,13 +63,13 @@ func (r *RedisDBService) AddSets(slug string, setMapping *map[string]string) {
 }
 
 func (r *RedisDBService) AddSet(slug string, setId string, set string) {
-	err := r.rdb.HSet(r.ctx, fmt.Sprintf("event:%s_sets", slug), setId, set).Err()
+	err := r.rdb.HSet(r.ctx, "event:"+slug+"_sets", setId, set).Err()
 	if err != nil {
 		panic(err)
 	}
 }
 
 func (r *RedisDBService) GetSets(slug string) *map[string]string {
-	setMapping := r.rdb.HGetAll(r.ctx, fmt.Sprintf("event:%s_sets", slug)).Val()
+	setMapping := r.rdb.HGetAll(r.ctx, "event:"+slug+"_sets").Val()
 	return &setMapping
 }

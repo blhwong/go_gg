@@ -47,7 +47,8 @@ type IndexHandler struct {
 }
 
 type WebSockerHandler struct {
-	service service.ServiceInterface
+	service         service.ServiceInterface
+	upsetThreadChan chan *domain.UpsetThreadHTML
 }
 
 func main() {
@@ -63,8 +64,11 @@ func main() {
 	}
 
 	webSocketHandler := WebSockerHandler{
-		service: service,
+		service:         service,
+		upsetThreadChan: make(chan *domain.UpsetThreadHTML),
 	}
+
+	go webSocketHandler.getUpsetThreadHTML()
 
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -101,20 +105,17 @@ func reader(ws *websocket.Conn) {
 	}
 }
 
-func (h *WebSockerHandler) getUpsetThreadHTML(c chan *domain.UpsetThreadHTML) {
+func (h *WebSockerHandler) getUpsetThreadHTML() {
 	for {
 		upsetThread := h.service.Process(*slug, *title, *subreddit, *file)
 		htmlUpsetThread := mapper.ToHTML(upsetThread, "")
-		c <- htmlUpsetThread
+		h.upsetThreadChan <- htmlUpsetThread
 	}
 }
 
 func (h *WebSockerHandler) writer(ws *websocket.Conn) {
 	lastError := ""
 	pingTicker := time.NewTicker(pingPeriod)
-	upsetThreadChan := make(chan *domain.UpsetThreadHTML)
-
-	go h.getUpsetThreadHTML(upsetThreadChan)
 
 	defer func() {
 		pingTicker.Stop()
@@ -122,7 +123,7 @@ func (h *WebSockerHandler) writer(ws *websocket.Conn) {
 	}()
 	for {
 		select {
-		case htmlUpsetThread := <-upsetThreadChan:
+		case htmlUpsetThread := <-h.upsetThreadChan:
 			var p []byte
 			var err error
 

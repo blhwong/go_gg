@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -174,7 +174,7 @@ var setTestCases []setTestCase = []setTestCase{
 
 func TestSet(t *testing.T) {
 	for idx, test := range setTestCases {
-		t.Run(fmt.Sprintf("Test case %v", idx+1), func(t *testing.T) {
+		t.Run("Test case "+strconv.Itoa(idx+1), func(t *testing.T) {
 			result := *test.set.Score
 			expected := test.expected
 			if result != expected {

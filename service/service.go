@@ -3,11 +3,11 @@ package service
 import (
 	"cmp"
 	"encoding/json"
-	"fmt"
 	"gg/client/startgg"
 	"gg/data"
 	"gg/domain"
 	"gg/mapper"
+	"log"
 	"math"
 	"os"
 	"slices"
@@ -41,7 +41,7 @@ func (f *FileReaderWriter) WriteString(fileName, data string) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v bytes written\n", l)
+	log.Printf("%v bytes written\n", l)
 }
 
 type ServiceInterface interface {
@@ -151,7 +151,7 @@ func (s *Service) getSetsFromAPI(slug string) *[]domain.Set {
 			panic(res.Errors)
 		}
 		totalPages := res.Data.Event.Sets.PageInfo.TotalPages
-		fmt.Printf("page: %v totalPage: %v\n", page, totalPages)
+		log.Printf("page: %v totalPage: %v\n", page, totalPages)
 		if page > totalPages {
 			break
 		}
@@ -335,7 +335,7 @@ func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThre
 	var sets []domain.Set
 
 	if file != "" {
-		fmt.Println("Using file data", file)
+		log.Println("Using file data", file)
 		storedFile := s.file.ReadFile(file)
 		var nodes []startgg.Node
 		if err := json.Unmarshal(storedFile, &nodes); err != nil {
@@ -345,7 +345,7 @@ func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThre
 			sets = append(sets, s.toDomainSet(node))
 		}
 	} else {
-		fmt.Println("Fetching data from startgg")
+		log.Println("Fetching data from startgg")
 		sets = *s.getSetsFromAPI(slug)
 	}
 	sort.Slice(sets, func(i, j int) bool {
@@ -354,9 +354,6 @@ func (s *Service) Process(slug, title, subreddit, file string) *domain.UpsetThre
 	upsetThread := s.getUpsetThread(sets)
 	s.addSets(slug, upsetThread)
 	savedUpsetThread := s.GetUpsetThreadDB(slug, title)
-	// md := mapper.ToMarkdown(savedUpsetThread, slug)
-	// outputName := fmt.Sprintf("output/%v %s.md", time.Now().UnixMilli(), title)
-	// s.file.WriteString(outputName, md)
 	return savedUpsetThread
 }
 

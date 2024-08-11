@@ -1,6 +1,8 @@
 package reddit
 
-import "fmt"
+import (
+	"log"
+)
 
 type RedditClientInterface interface {
 	Submission(submissionId string)
@@ -11,13 +13,13 @@ type RedditClientInterface interface {
 type RedditClient struct{}
 
 func (redditClient *RedditClient) Submission(submissionId string) {
-	fmt.Printf("Submission. submissionId: %s\n", submissionId)
+	log.Printf("Submission. submissionId: %s\n", submissionId)
 }
 
 func (redditClient *RedditClient) Subreddit(subreddit string) {
-	fmt.Printf("Subreddit. subreddit: %s\n", subreddit)
+	log.Printf("Subreddit. subreddit: %s\n", subreddit)
 }
 
 func (redditClient *RedditClient) Submit(title string, text string) {
-	fmt.Printf("Submit. title: %s, text: %s\n", title, text)
+	log.Printf("Submit. title: %s, text: %s\n", title, text)
 }

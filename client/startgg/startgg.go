@@ -2,8 +2,8 @@ package startgg
 
 import (
 	"encoding/json"
-	"fmt"
 	"gg/client/graphql"
+	"log"
 )
 
 type ClientInterface interface {
@@ -86,7 +86,7 @@ type EventResponse struct {
 }
 
 func (client *Client) GetEvent(slug string, page int) EventResponse {
-	fmt.Printf("Getting event. slug: %s, page: %v\n", slug, page)
+	log.Printf("Getting event. slug=%s page=%v\n", slug, page)
 	type filters struct {
 		State int `json:"state"`
 	}
@@ -96,7 +96,7 @@ func (client *Client) GetEvent(slug string, page int) EventResponse {
 		Filters  filters `json:"filters"`
 		SortType string  `json:"sortType"`
 	}
-	resp := client.graphQLClient.Query(eventsQuery, variables{slug, page, filters{3}, "RECENT"})
+	resp, _ := client.graphQLClient.Query(eventsQuery, variables{slug, page, filters{3}, "RECENT"})
 	var eventResponse EventResponse
 	if err := json.Unmarshal(resp, &eventResponse); err != nil {
 		panic(err)
@@ -120,11 +120,11 @@ type CharactersResponse struct {
 }
 
 func (client *Client) GetCharacters() CharactersResponse {
-	fmt.Println("Getting characters")
+	log.Println("Getting characters")
 	type variables struct {
 		Slug string `json:"slug"`
 	}
-	resp := client.graphQLClient.Query(charactersQuery, variables{"game/ultimate"})
+	resp, _ := client.graphQLClient.Query(charactersQuery, variables{"game/ultimate"})
 	var charactersResponse CharactersResponse
 	if err := json.Unmarshal(resp, &charactersResponse); err != nil {
 		panic(err)

@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"fmt"
 	"gg/domain"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -10,22 +10,22 @@ import (
 func toLineItemHTML(item domain.UpsetThreadItem) *domain.UpsetThreadItemHTML {
 	words := []string{item.WinnersName}
 	if len(item.WinnersCharacters) > 0 {
-		words = append(words, fmt.Sprintf("(%s)", item.WinnersCharacters))
+		words = append(words, "("+item.WinnersCharacters+")")
 	}
-	words = append(words, fmt.Sprintf("(seed %v)", item.WinnersSeed))
+	words = append(words, "(seed "+strconv.Itoa(item.WinnersSeed)+")")
 	words = append(words, *item.Score)
 	words = append(words, item.LosersName)
 	if len(item.LosersCharacters) > 0 {
-		words = append(words, fmt.Sprintf("(%s)", item.LosersCharacters))
+		words = append(words, "("+item.LosersCharacters+")")
 	}
-	losersSeed := fmt.Sprintf("(seed %v)", item.LosersSeed)
+	losersSeed := "(seed " + strconv.Itoa(item.LosersSeed) + ")"
 	if item.IsWinnersBracket {
 		words = append(words, losersSeed)
 	} else {
-		words = append(words, fmt.Sprintf("%v, out at %s", losersSeed, getOrdinal(item.LosersPlacement)))
+		words = append(words, losersSeed+", out at "+getOrdinal(item.LosersPlacement))
 	}
 	if item.UpsetFactor > 0 {
-		words = append(words, fmt.Sprintf("- Upset Factor %v", item.UpsetFactor))
+		words = append(words, "- Upset Factor "+strconv.Itoa(item.UpsetFactor))
 	}
 	content := strings.Join(words, " ")
 	var bold bool

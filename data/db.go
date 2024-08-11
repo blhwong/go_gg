@@ -1,8 +1,8 @@
 package data
 
 import (
-	"fmt"
 	"gg/client/startgg"
+	"strconv"
 	"strings"
 )
 
@@ -28,12 +28,12 @@ func (db *InMemoryDBService) IsCharactersLoaded() bool {
 }
 
 func (db *InMemoryDBService) GetCharacterName(key int) string {
-	return db.storage[fmt.Sprintf("character:%v", key)]
+	return db.storage[strconv.Itoa(key)]
 }
 
 func (db *InMemoryDBService) AddCharacters(characters []startgg.Character) {
 	for _, character := range characters {
-		db.storage[fmt.Sprintf("character:%v", character.Id)] = character.Name
+		db.storage[strconv.Itoa(character.Id)] = character.Name
 	}
 }
 
@@ -48,7 +48,7 @@ func (db *InMemoryDBService) AddSets(slug string, setMapping *map[string]string)
 }
 
 func (db *InMemoryDBService) AddSet(slug string, setId string, set string) {
-	db.storage[fmt.Sprintf("%s_%s", slug, setId)] = set
+	db.storage[slug+"_"+setId] = set
 }
 
 func (db *InMemoryDBService) GetSets(slug string) *map[string]string {

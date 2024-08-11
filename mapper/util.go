@@ -1,20 +1,23 @@
 package mapper
 
-import "fmt"
+import (
+	"strconv"
+)
 
 func getOrdinal(n int) string {
+	s := strconv.Itoa(n)
 	if n >= 11 && n <= 13 {
-		return fmt.Sprintf("%dth", n)
+		return s + "th"
 	}
 
 	switch n % 10 {
 	case 1:
-		return fmt.Sprintf("%dst", n)
+		return s + "st"
 	case 2:
-		return fmt.Sprintf("%dnd", n)
+		return s + "nd"
 	case 3:
-		return fmt.Sprintf("%drd", n)
+		return s + "rd"
 	default:
-		return fmt.Sprintf("%dth", n)
+		return s + "th"
 	}
 }

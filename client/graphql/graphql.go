@@ -3,13 +3,15 @@ package graphql
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
+	"math"
 	"net/http"
+	"time"
 )
 
 type ClientInterface interface {
-	Query(query string, variables interface{}) []byte
+	Query(query string, variables interface{}) ([]byte, error)
 }
 
 type HttpClientInterface interface {
@@ -27,7 +29,12 @@ type Payload struct {
 	Variables interface{} `json:"variables"`
 }
 
-func (client *Client) Query(query string, variables interface{}) []byte {
+const (
+	MAX_RETRIES = 10
+	BASE_DELAY  = 1 * time.Second
+)
+
+func (client *Client) query(query string, variables interface{}) ([]byte, error) {
 	payload := Payload{query, variables}
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -38,7 +45,7 @@ func (client *Client) Query(query string, variables interface{}) []byte {
 		panic(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.apiToken))
+	req.Header.Set("Authorization", "Bearer "+client.apiToken)
 	resp, err := client.httpClient.Do(req)
 	if err != nil {
 		panic(err)
@@ -49,7 +56,35 @@ func (client *Client) Query(query string, variables interface{}) []byte {
 	if err != nil {
 		panic(err)
 	}
-	return respBody
+
+	if resp.StatusCode != 200 {
+		log.Printf("StartGG returned a non-200 response. status_code=%d\n", resp.StatusCode)
+		return nil, err
+	}
+
+	return respBody, nil
+}
+
+func (client *Client) Query(query string, variables interface{}) ([]byte, error) {
+	var body []byte
+	var err error
+
+	for i := 0; i < MAX_RETRIES; i++ {
+		body, err = client.query(query, variables)
+		if err == nil {
+			break
+		}
+
+		secRetry := math.Pow(2, float64(i))
+		delay := time.Duration(secRetry) * BASE_DELAY
+		log.Printf("Error: %s. Retrying %d of %d\n in %v seconds", err, i, MAX_RETRIES, delay.Seconds())
+		time.Sleep(delay)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 func NewClient(url, apiToken string, httpClient HttpClientInterface) *Client {

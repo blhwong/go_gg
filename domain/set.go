@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"fmt"
 	"slices"
 	"sort"
 	"strconv"
@@ -88,7 +87,6 @@ func reverseString(s string) string {
 }
 
 func initScore(games *[]Game, displayScore string, winner, loser Entrant, totalGames int) *string {
-	// fmt.Printf("Initializing score. games=%v displayScore=%s totalGames=%v\n", games, displayScore, totalGames)
 	if displayScore == "DQ" {
 		return &displayScore
 	}
@@ -108,7 +106,7 @@ func initScore(games *[]Game, displayScore string, winner, loser Entrant, totalG
 			} else {
 				loserScore++
 			}
-			s := fmt.Sprintf("%v-%v", winnerScore, loserScore)
+			s := strconv.Itoa(winnerScore) + "-" + strconv.Itoa(loserScore)
 			scoresFromGames = &s
 		}
 	}
